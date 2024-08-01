@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAddUserTable } from '../integrations/supabase';
+import { useAddUserTable, useUserTable } from '../integrations/supabase';
 import { Button } from "@/components/ui/button";
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,7 @@ const CreateUser = () => {
   const [success, setSuccess] = useState(false);
 
   const addUserMutation = useAddUserTable();
+  const { data: existingUsers } = useUserTable();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -42,6 +43,18 @@ const CreateUser = () => {
     setError(null);
     setSuccess(false);
 
+    // Check for duplicate user
+    const isDuplicate = existingUsers?.some(user => 
+      user.user_id === userData.user_id && 
+      user.user_type === userData.user_type && 
+      user.user_org === userData.user_org
+    );
+
+    if (isDuplicate) {
+      setError("A user with this ID, type, and organization already exists.");
+      return;
+    }
+
     try {
       const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ssXXX");
       await addUserMutation.mutateAsync({ ...userData, last_upd: currentTime });
@@ -51,8 +64,6 @@ const CreateUser = () => {
       setError(error.message);
     }
   };
-
-  // Remove the session check as it's no longer needed
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">

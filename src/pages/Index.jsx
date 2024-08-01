@@ -10,9 +10,9 @@ const Index = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
-          <img src="/company-logo.png" alt="Company Logo" className="mx-auto object-contain w-32 h-32 mb-4" />
+          <img src="/tsv-logo.png" alt="TSV Global Solutions Logo" className="mx-auto object-contain w-32 h-32 mb-4" />
           <h1 className="text-4xl font-bold mb-4">Welcome to DSR Tracking Application</h1>
-          <p className="text-xl mb-8">Streamline your logistics operations</p>
+          <p className="text-xl mb-8">Streamline your logistics with TSV Global Solutions</p>
         </div>
 
         {session ? (

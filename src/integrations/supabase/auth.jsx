@@ -1,8 +1,6 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, createContext, useContext } from 'react';
 import { supabase, SupabaseProvider } from './index.js';
 import { useQueryClient } from '@tanstack/react-query';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
 
 const SupabaseAuthContext = createContext();
 
@@ -18,39 +16,42 @@ export const SupabaseAuthProvider = ({ children }) => {
 
 export const SupabaseAuthProviderInner = ({ children }) => {
   const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const getSession = async () => {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setLoading(false);
-    };
+  const login = async (email, password) => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('user_table')
+      .select('*')
+      .eq('user_id', email)
+      .eq('password', password)
+      .single();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
+    if (error) {
+      console.error('Error during login:', error);
+      setLoading(false);
+      return { error: 'Invalid login credentials' };
+    }
+
+    if (data) {
+      setSession({ user: data });
       queryClient.invalidateQueries('user');
-    });
-
-    getSession();
-
-    return () => {
-      authListener.subscription.unsubscribe();
       setLoading(false);
-    };
-  }, [queryClient]);
+      return { session: { user: data } };
+    }
 
-  const logout = async () => {
-    await supabase.auth.signOut();
+    setLoading(false);
+    return { error: 'Invalid login credentials' };
+  };
+
+  const logout = () => {
     setSession(null);
     queryClient.invalidateQueries('user');
-    setLoading(false);
   };
 
   return (
-    <SupabaseAuthContext.Provider value={{ session, loading, logout }}>
+    <SupabaseAuthContext.Provider value={{ session, loading, login, logout }}>
       {children}
     </SupabaseAuthContext.Provider>
   );
@@ -60,11 +61,4 @@ export const useSupabaseAuth = () => {
   return useContext(SupabaseAuthContext);
 };
 
-export const SupabaseAuthUI = () => (
-  <Auth
-    supabaseClient={supabase}
-    appearance={{ theme: ThemeSupa }}
-    theme="default"
-    providers={[]}
-  />
-);
+export const SupabaseAuthUI = () => null; // Remove this component as we're not using Supabase Auth UI

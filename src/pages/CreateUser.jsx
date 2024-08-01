@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { getUserOrganizations } from '../utils/userOrganizations';
+import { Navigate } from 'react-router-dom';
 
 const CreateUser = () => {
   const { session } = useSupabaseAuth();

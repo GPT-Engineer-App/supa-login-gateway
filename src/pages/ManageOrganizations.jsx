@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { getUserOrganizations, addUserOrganization, deleteUserOrganization } from '../utils/userOrganizations';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { Navigate } from 'react-router-dom';
 
 const ManageOrganizations = () => {
   const [organizations, setOrganizations] = useState([]);
@@ -29,8 +30,12 @@ const ManageOrganizations = () => {
     setOrganizations(getUserOrganizations());
   };
 
-  if (!session || session.user.user_type !== 'admin') {
-    return <Alert><AlertDescription>You must be an admin to access this page.</AlertDescription></Alert>;
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (session.user.user_type !== 'admin' && session.user.user_type !== 'user') {
+    return <Alert><AlertDescription>You must be an admin or user to access this page.</AlertDescription></Alert>;
   }
 
   return (

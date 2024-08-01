@@ -6,11 +6,21 @@ import { navItems } from "../nav-items";
 const Navbar = () => {
   const { session, logout } = useSupabaseAuth();
 
+  const isAdmin = session?.user?.user_type === 'admin';
+  const isUser = session?.user?.user_type === 'user';
+
+  const filteredNavItems = navItems.filter(item => {
+    if (!session) return item.title === "Home" || item.title === "Login";
+    if (item.title === "Create User") return isAdmin || isUser;
+    if (item.title === "Manage Organizations") return isAdmin || isUser;
+    return true;
+  });
+
   return (
     <nav className="bg-gray-800 p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex space-x-4">
-          {navItems.map(({ title, to, icon }) => (
+          {filteredNavItems.map(({ title, to, icon }) => (
             <Link key={to} to={to} className="text-white hover:text-gray-300 flex items-center">
               {icon}
               <span className="ml-1">{title}</span>

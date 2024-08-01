@@ -7,12 +7,10 @@ const Navbar = () => {
   const { session, logout } = useSupabaseAuth();
 
   const isAdmin = session?.user?.user_type === 'admin';
-  const isUser = session?.user?.user_type === 'user';
 
   const filteredNavItems = navItems.filter(item => {
     if (!session) return item.title === "Home";
-    if (item.title === "Create User") return isAdmin || isUser;
-    if (item.title === "Manage Organizations") return isAdmin;
+    if (item.title === "Create User" || item.title === "Manage Organizations") return isAdmin;
     return true;
   });
 

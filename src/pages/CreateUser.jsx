@@ -13,7 +13,7 @@ import { Navigate } from 'react-router-dom';
 const CreateUser = () => {
   const { session } = useSupabaseAuth();
 
-  if (!session || session.user.user_type !== 'admin') {
+  if (!session || (session.user.user_type !== 'admin' && session.user.user_type !== 'user')) {
     return <Navigate to="/" replace />;
   }
 

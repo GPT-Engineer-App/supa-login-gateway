@@ -19,53 +19,112 @@ const fromSupabase = async (query) => {
 
 /* supabase integration types
 
-// EXAMPLE TYPES SECTION
-// DO NOT USE TYPESCRIPT
+### user_table
 
-### foos
+| name       | type                     | format | required |
+|------------|--------------------------|--------|----------|
+| id         | int8                     | number | true     |
+| created_at | timestamp with time zone | string | true     |
+| last_upd   | timestamp with time zone | string | true     |
+| user_id    | text                     | string | true     |
+| password   | text                     | string | true     |
+| user_type  | text                     | string | true     |
+| user_org   | text                     | string | true     |
 
-| name    | type | format | required |
-|---------|------|--------|----------|
-| id      | int8 | number | true     |
-| title   | text | string | true     |
-| date    | date | string | true     |
+### dsr_tracker
 
-### bars
+| name        | type                     | format | required |
+|-------------|--------------------------|--------|----------|
+| id          | int8                     | number | true     |
+| created_dt  | timestamp with time zone | string | true     |
+| po_number   | text                     | string | true     |
+| last_upd_dt | timestamp with time zone | string | true     |
+| last_upd_by | text                     | string | true     |
+| created_by  | text                     | string | true     |
+| comments    | json                     | object | true     |
 
-| name    | type | format | required |
-|---------|------|--------|----------|
-| id      | int8 | number | true     |
-| foo_id  | int8 | number | true     |  // foreign key to foos
-	
 */
 
-// Example hook for models
+// Hooks for user_table
 
-export const useFoo = ()=> useQuery({
-    queryKey: ['foos'],
-    queryFn: fromSupabase(supabase.from('foos')),
-})
-export const useAddFoo = () => {
+export const useUserTable = () => useQuery({
+    queryKey: ['user_table'],
+    queryFn: () => fromSupabase(supabase.from('user_table').select('*')),
+});
+
+export const useUserTableById = (id) => useQuery({
+    queryKey: ['user_table', id],
+    queryFn: () => fromSupabase(supabase.from('user_table').select('*').eq('id', id).single()),
+});
+
+export const useAddUserTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newFoo)=> fromSupabase(supabase.from('foos').insert([{ title: newFoo.title }])),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries('foos');
+        mutationFn: (newUser) => fromSupabase(supabase.from('user_table').insert([newUser])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('user_table');
         },
     });
 };
 
-export const useBar = ()=> useQuery({
-    queryKey: ['bars'],
-    queryFn: fromSupabase(supabase.from('bars')),
-})
-export const useAddBar = () => {
+export const useUpdateUserTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newBar)=> fromSupabase(supabase.from('bars').insert([{ foo_id: newBar.foo_id }])),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries('bars');
+        mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('user_table').update(updateData).eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('user_table');
         },
     });
 };
 
+export const useDeleteUserTable = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('user_table').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('user_table');
+        },
+    });
+};
+
+// Hooks for dsr_tracker
+
+export const useDsrTracker = () => useQuery({
+    queryKey: ['dsr_tracker'],
+    queryFn: () => fromSupabase(supabase.from('dsr_tracker').select('*')),
+});
+
+export const useDsrTrackerById = (id) => useQuery({
+    queryKey: ['dsr_tracker', id],
+    queryFn: () => fromSupabase(supabase.from('dsr_tracker').select('*').eq('id', id).single()),
+});
+
+export const useAddDsrTracker = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newDsr) => fromSupabase(supabase.from('dsr_tracker').insert([newDsr])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('dsr_tracker');
+        },
+    });
+};
+
+export const useUpdateDsrTracker = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('dsr_tracker').update(updateData).eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('dsr_tracker');
+        },
+    });
+};
+
+export const useDeleteDsrTracker = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('dsr_tracker').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('dsr_tracker');
+        },
+    });
+};

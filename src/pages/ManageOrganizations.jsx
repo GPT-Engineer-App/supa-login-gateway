@@ -14,8 +14,10 @@ const ManageOrganizations = () => {
   const { session } = useSupabaseAuth();
 
   useEffect(() => {
-    setOrganizations(getUserOrganizations());
-  }, []);
+    if (session?.user?.user_type === 'admin') {
+      setOrganizations(getUserOrganizations());
+    }
+  }, [session]);
 
   const handleAddOrg = () => {
     if (newOrg.trim() !== '') {
@@ -35,7 +37,7 @@ const ManageOrganizations = () => {
   }
 
   if (session.user.user_type !== 'admin') {
-    return <Alert><AlertDescription>You must be an admin to access this page.</AlertDescription></Alert>;
+    return <Navigate to="/" replace />;
   }
 
   return (

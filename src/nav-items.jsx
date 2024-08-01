@@ -25,5 +25,6 @@ export const navItems = [
     to: "/manage-organizations",
     icon: <Settings className="h-4 w-4" />,
     page: <ManageOrganizations />,
+    adminOnly: true,
   },
 ];

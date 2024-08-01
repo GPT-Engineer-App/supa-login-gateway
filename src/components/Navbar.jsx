@@ -10,7 +10,7 @@ const Navbar = () => {
 
   const filteredNavItems = navItems.filter(item => {
     if (!session) return item.title === "Home";
-    if (item.title === "Create User" || item.title === "Manage Organizations") return isAdmin;
+    if (item.adminOnly) return isAdmin;
     return true;
   });
 

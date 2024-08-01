@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const CreateUser = () => {
+  const { session } = useSupabaseAuth();
   const [userData, setUserData] = useState({
     user_id: '',
     password: '',
@@ -32,14 +34,36 @@ const CreateUser = () => {
     setError(null);
     setSuccess(false);
 
+    if (!session) {
+      setError("You must be logged in to create a user.");
+      return;
+    }
+
     try {
-      await addUserMutation.mutateAsync(userData);
+      await addUserMutation.mutateAsync({
+        ...userData,
+        created_by: session.user.id
+      });
       setSuccess(true);
       setUserData({ user_id: '', password: '', user_type: '', user_org: '' });
     } catch (error) {
-      setError(error.message);
+      if (error.message.includes("row-level security policy")) {
+        setError("You don't have permission to create a user. Please contact an administrator.");
+      } else {
+        setError(error.message);
+      }
     }
   };
+
+  if (!session) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <Alert>
+          <AlertDescription>You must be logged in to create a user.</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">

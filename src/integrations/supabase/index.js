@@ -60,7 +60,11 @@ export const useUserTableById = (id) => useQuery({
 export const useAddUserTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newUser) => fromSupabase(supabase.from('user_table').insert([newUser])),
+        mutationFn: async (newUser) => {
+            const { data: session } = await supabase.auth.getSession();
+            if (!session) throw new Error('Not authenticated');
+            return fromSupabase(supabase.from('user_table').insert([{ ...newUser, created_by: session.user.id }]));
+        },
         onSuccess: () => {
             queryClient.invalidateQueries('user_table');
         },
@@ -70,7 +74,11 @@ export const useAddUserTable = () => {
 export const useUpdateUserTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('user_table').update(updateData).eq('id', id)),
+        mutationFn: async ({ id, ...updateData }) => {
+            const { data: session } = await supabase.auth.getSession();
+            if (!session) throw new Error('Not authenticated');
+            return fromSupabase(supabase.from('user_table').update({ ...updateData, last_upd_by: session.user.id }).eq('id', id));
+        },
         onSuccess: () => {
             queryClient.invalidateQueries('user_table');
         },
@@ -80,7 +88,11 @@ export const useUpdateUserTable = () => {
 export const useDeleteUserTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('user_table').delete().eq('id', id)),
+        mutationFn: async (id) => {
+            const { data: session } = await supabase.auth.getSession();
+            if (!session) throw new Error('Not authenticated');
+            return fromSupabase(supabase.from('user_table').delete().eq('id', id));
+        },
         onSuccess: () => {
             queryClient.invalidateQueries('user_table');
         },

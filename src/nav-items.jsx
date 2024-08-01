@@ -1,4 +1,4 @@
-import { Home, UserPlus, LogIn, Settings } from "lucide-react";
+import { Home, UserPlus, Settings } from "lucide-react";
 import Index from "./pages/Index.jsx";
 import CreateUser from "./pages/CreateUser.jsx";
 import Login from "./pages/Login.jsx";
@@ -19,12 +19,6 @@ export const navItems = [
     to: "/create-user",
     icon: <UserPlus className="h-4 w-4" />,
     page: <CreateUser />,
-  },
-  {
-    title: "Login",
-    to: "/login",
-    icon: <LogIn className="h-4 w-4" />,
-    page: <Login />,
   },
   {
     title: "Manage Organizations",

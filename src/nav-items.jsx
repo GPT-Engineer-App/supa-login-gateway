@@ -19,6 +19,7 @@ export const navItems = [
     to: "/create-user",
     icon: <UserPlus className="h-4 w-4" />,
     page: <CreateUser />,
+    adminOnly: true,
   },
   {
     title: "Manage Organizations",

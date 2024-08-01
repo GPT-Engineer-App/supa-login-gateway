@@ -5,17 +5,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Create policy for user_table
-const createUserTablePolicy = async () => {
-  const { error } = await supabase.rpc('create_policy', {
-    table_name: 'user_table',
-    policy_name: 'user_own_data',
-    policy_definition: `auth.uid() = user_id`
-  });
-  if (error) console.error('Error creating policy:', error);
-};
-
-createUserTablePolicy();
+// RLS has been disabled, so we don't need to create policies anymore
 
 import React from "react";
 export const queryClient = new QueryClient();
@@ -72,11 +62,7 @@ export const useUserTableById = (id) => useQuery({
 export const useAddUserTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (newUser) => {
-            const { data: session } = await supabase.auth.getSession();
-            if (!session) throw new Error('Not authenticated');
-            return fromSupabase(supabase.from('user_table').insert([{ ...newUser, created_by: session.user.id }]));
-        },
+        mutationFn: (newUser) => fromSupabase(supabase.from('user_table').insert([newUser])),
         onSuccess: () => {
             queryClient.invalidateQueries('user_table');
         },
@@ -86,11 +72,7 @@ export const useAddUserTable = () => {
 export const useUpdateUserTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async ({ id, ...updateData }) => {
-            const { data: session } = await supabase.auth.getSession();
-            if (!session) throw new Error('Not authenticated');
-            return fromSupabase(supabase.from('user_table').update({ ...updateData, last_upd_by: session.user.id }).eq('id', id));
-        },
+        mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('user_table').update(updateData).eq('id', id)),
         onSuccess: () => {
             queryClient.invalidateQueries('user_table');
         },
@@ -100,11 +82,7 @@ export const useUpdateUserTable = () => {
 export const useDeleteUserTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (id) => {
-            const { data: session } = await supabase.auth.getSession();
-            if (!session) throw new Error('Not authenticated');
-            return fromSupabase(supabase.from('user_table').delete().eq('id', id));
-        },
+        mutationFn: (id) => fromSupabase(supabase.from('user_table').delete().eq('id', id)),
         onSuccess: () => {
             queryClient.invalidateQueries('user_table');
         },

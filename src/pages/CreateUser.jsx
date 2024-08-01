@@ -34,36 +34,16 @@ const CreateUser = () => {
     setError(null);
     setSuccess(false);
 
-    if (!session) {
-      setError("You must be logged in to create a user.");
-      return;
-    }
-
     try {
-      await addUserMutation.mutateAsync({
-        ...userData,
-        created_by: session.user.id
-      });
+      await addUserMutation.mutateAsync(userData);
       setSuccess(true);
       setUserData({ user_id: '', password: '', user_type: '', user_org: '' });
     } catch (error) {
-      if (error.message.includes("row-level security policy")) {
-        setError("You don't have permission to create a user. Please contact an administrator.");
-      } else {
-        setError(error.message);
-      }
+      setError(error.message);
     }
   };
 
-  if (!session) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <Alert>
-          <AlertDescription>You must be logged in to create a user.</AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Remove the session check as it's no longer needed
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">

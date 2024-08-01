@@ -24,6 +24,10 @@ const DsrList = () => {
   const sortedDsrs = filteredDsrs?.sort((a, b) => new Date(b.last_upd_dt) - new Date(a.last_upd_dt)).slice(0, 10);
 
   const handleUpdate = async (dsr) => {
+    if (session.user.user_type === 'guest') {
+      alert('Guest users are not allowed to update DSRs.');
+      return;
+    }
     if (!updateComment.trim()) return;
 
     const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX");
@@ -51,6 +55,10 @@ const DsrList = () => {
   };
 
   const handleDelete = async (id) => {
+    if (session.user.user_type === 'guest') {
+      alert('Guest users are not allowed to delete DSRs.');
+      return;
+    }
     if (window.confirm('Are you sure you want to delete this DSR?')) {
       try {
         await deleteDsrMutation.mutateAsync(id);
@@ -110,15 +118,17 @@ const DsrList = () => {
                             </li>
                           ))}
                         </ul>
-                        <div className="mt-2">
-                          <Textarea
-                            value={updateComment}
-                            onChange={(e) => setUpdateComment(e.target.value)}
-                            placeholder="Add a new comment"
-                          />
-                          <Button onClick={() => handleUpdate(selectedDsr)} className="mt-2">Update</Button>
-                          <Button onClick={() => handleDelete(selectedDsr.id)} variant="destructive" className="mt-2 ml-2">Delete</Button>
-                        </div>
+                        {session.user.user_type !== 'guest' && (
+                          <div className="mt-2">
+                            <Textarea
+                              value={updateComment}
+                              onChange={(e) => setUpdateComment(e.target.value)}
+                              placeholder="Add a new comment"
+                            />
+                            <Button onClick={() => handleUpdate(selectedDsr)} className="mt-2">Update</Button>
+                            <Button onClick={() => handleDelete(selectedDsr.id)} variant="destructive" className="mt-2 ml-2">Delete</Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </DialogContent>

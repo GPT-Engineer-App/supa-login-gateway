@@ -21,7 +21,6 @@ const Index = () => {
           </Button>
         ) : (
           <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4 text-blue-800">Please log in to continue</h2>
             <SupabaseAuthUI />
           </div>
         )}

@@ -12,6 +12,11 @@ import { Navigate } from 'react-router-dom';
 
 const CreateUser = () => {
   const { session } = useSupabaseAuth();
+
+  if (!session || session.user.user_type !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
   const [userData, setUserData] = useState({
     user_id: '',
     password: '',
@@ -70,6 +75,7 @@ const CreateUser = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-md">
         <h1 className="text-3xl font-bold text-center">Create User</h1>
+        <p className="text-center text-gray-600">Admin access only</p>
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>

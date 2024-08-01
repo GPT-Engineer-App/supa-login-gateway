@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAddUserTable } from '../integrations/supabase';
 import { Button } from "@/components/ui/button";
+import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -14,6 +15,7 @@ const CreateUser = () => {
     password: '',
     user_type: '',
     user_org: '',
+    last_upd: '',
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -35,9 +37,10 @@ const CreateUser = () => {
     setSuccess(false);
 
     try {
-      await addUserMutation.mutateAsync(userData);
+      const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ssXXX");
+      await addUserMutation.mutateAsync({ ...userData, last_upd: currentTime });
       setSuccess(true);
-      setUserData({ user_id: '', password: '', user_type: '', user_org: '' });
+      setUserData({ user_id: '', password: '', user_type: '', user_org: '', last_upd: '' });
     } catch (error) {
       setError(error.message);
     }

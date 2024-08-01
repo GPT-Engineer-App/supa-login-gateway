@@ -28,12 +28,12 @@ const Navbar = () => {
         </div>
         <div>
           {session ? (
-            <Button onClick={logout} variant="outline" className="text-white">
+            <Button onClick={logout} variant="outline" className="bg-white text-gray-800 hover:bg-gray-200">
               Logout
             </Button>
           ) : (
             <Link to="/login">
-              <Button variant="outline" className="text-white">
+              <Button variant="outline" className="bg-white text-gray-800 hover:bg-gray-200">
                 Login
               </Button>
             </Link>

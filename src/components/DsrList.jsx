@@ -3,12 +3,17 @@ import { useDsrTracker, useUpdateDsrTracker, useDeleteDsrTracker } from '../inte
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { format } from 'date-fns';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const DsrList = () => {
   const [searchId, setSearchId] = useState('');
   const [updateComment, setUpdateComment] = useState('');
+  const [selectedDsr, setSelectedDsr] = useState(null);
   const { data: dsrs, isLoading, isError } = useDsrTracker();
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();
@@ -17,6 +22,8 @@ const DsrList = () => {
   const filteredDsrs = searchId
     ? dsrs?.filter(dsr => dsr.po_number.includes(searchId))
     : dsrs;
+
+  const sortedDsrs = filteredDsrs?.sort((a, b) => new Date(b.last_upd_dt) - new Date(a.last_upd_dt)).slice(0, 10);
 
   const handleUpdate = async (dsr) => {
     if (!updateComment.trim()) return;
@@ -37,6 +44,7 @@ const DsrList = () => {
         last_upd_by: session.user.user_id
       });
       setUpdateComment('');
+      setSelectedDsr(null);
       alert('DSR updated successfully!');
     } catch (error) {
       console.error('Error updating DSR:', error);
@@ -67,30 +75,61 @@ const DsrList = () => {
         onChange={(e) => setSearchId(e.target.value)}
         placeholder="Search by Tracking ID"
       />
-      {filteredDsrs?.map(dsr => (
-        <div key={dsr.id} className="border p-4 rounded">
-          <h3 className="font-bold">Tracking ID: {dsr.po_number}</h3>
-          <p>Created: {new Date(dsr.created_dt).toLocaleString()}</p>
-          <p>Last Updated: {new Date(dsr.last_upd_dt).toLocaleString()}</p>
-          <h4 className="font-semibold mt-2">Comments:</h4>
-          <ul className="list-disc pl-5">
-            {JSON.parse(dsr.comments || '[]').map((comment, index) => (
-              <li key={index}>
-                {new Date(comment.date).toLocaleString()} - {comment.user}: {comment.comment}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-2">
-            <Textarea
-              value={updateComment}
-              onChange={(e) => setUpdateComment(e.target.value)}
-              placeholder="Add a new comment"
-            />
-            <Button onClick={() => handleUpdate(dsr)} className="mt-2">Update</Button>
-            <Button onClick={() => handleDelete(dsr.id)} variant="destructive" className="mt-2 ml-2">Delete</Button>
-          </div>
-        </div>
-      ))}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Tracking ID</TableHead>
+            <TableHead>Last Updated</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sortedDsrs?.map(dsr => (
+            <TableRow key={dsr.id}>
+              <TableCell>{dsr.po_number}</TableCell>
+              <TableCell>{new Date(dsr.last_upd_dt).toLocaleString()}</TableCell>
+              <TableCell>{JSON.parse(dsr.comments || '[]').slice(-1)[0]?.comment || 'No status'}</TableCell>
+              <TableCell>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" onClick={() => setSelectedDsr(dsr)}>View</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>DSR Details</DialogTitle>
+                    </DialogHeader>
+                    {selectedDsr && (
+                      <div className="mt-2">
+                        <h3 className="font-bold">Tracking ID: {selectedDsr.po_number}</h3>
+                        <p>Created: {new Date(selectedDsr.created_dt).toLocaleString()}</p>
+                        <p>Last Updated: {new Date(selectedDsr.last_upd_dt).toLocaleString()}</p>
+                        <h4 className="font-semibold mt-2">Comments:</h4>
+                        <ul className="list-disc pl-5">
+                          {JSON.parse(selectedDsr.comments || '[]').map((comment, index) => (
+                            <li key={index}>
+                              {new Date(comment.date).toLocaleString()} - {comment.user}: {comment.comment}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-2">
+                          <Textarea
+                            value={updateComment}
+                            onChange={(e) => setUpdateComment(e.target.value)}
+                            placeholder="Add a new comment"
+                          />
+                          <Button onClick={() => handleUpdate(selectedDsr)} className="mt-2">Update</Button>
+                          <Button onClick={() => handleDelete(selectedDsr.id)} variant="destructive" className="mt-2 ml-2">Delete</Button>
+                        </div>
+                      </div>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };

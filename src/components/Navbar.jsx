@@ -11,7 +11,8 @@ const Navbar = () => {
 
   const filteredNavItems = navItems.filter(item => {
     if (!session) return item.title === "Home";
-    if (item.title === "Create User" || item.title === "Manage Organizations") return isAdmin || isUser;
+    if (item.title === "Create User") return isAdmin || isUser;
+    if (item.title === "Manage Organizations") return isAdmin;
     return true;
   });
 

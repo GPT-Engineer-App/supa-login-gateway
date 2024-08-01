@@ -34,8 +34,8 @@ const ManageOrganizations = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (session.user.user_type !== 'admin' && session.user.user_type !== 'user') {
-    return <Alert><AlertDescription>You must be an admin or user to access this page.</AlertDescription></Alert>;
+  if (session.user.user_type !== 'admin') {
+    return <Alert><AlertDescription>You must be an admin to access this page.</AlertDescription></Alert>;
   }
 
   return (

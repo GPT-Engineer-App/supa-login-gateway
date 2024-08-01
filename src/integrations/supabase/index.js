@@ -93,7 +93,7 @@ export const useDeleteUserTable = () => {
 
 export const useDsrTracker = () => useQuery({
     queryKey: ['dsr_tracker'],
-    queryFn: () => fromSupabase(supabase.from('dsr_tracker').select('*')),
+    queryFn: () => fromSupabase(supabase.from('dsr_tracker').select('*').order('created_dt', { ascending: false })),
 });
 
 export const useDsrTrackerById = (id) => useQuery({

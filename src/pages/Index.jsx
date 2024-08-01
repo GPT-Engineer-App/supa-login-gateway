@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSupabaseAuth } from "../integrations/supabase/auth";
 import DsrBox from "../components/DsrBox";
+import DsrForm from "../components/DsrForm";
+import DsrList from "../components/DsrList";
 
 const Index = () => {
   const { session } = useSupabaseAuth();
@@ -17,26 +19,21 @@ const Index = () => {
 
         {session ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <DsrBox title="Recent DSRs">
-              <p>Your recent DSRs will appear here.</p>
+            <DsrBox title="Create New DSR">
+              <DsrForm />
+            </DsrBox>
+            <DsrBox title="DSR List">
+              <DsrList />
             </DsrBox>
             <DsrBox title="Quick Actions">
               {session.user.user_type !== 'guest' && (
-                <>
-                  <Button asChild className="w-full mb-2">
-                    <Link to="/create-user">Create New DSR</Link>
-                  </Button>
-                  <Button asChild className="w-full" variant="outline">
-                    <Link to="/manage-organizations">Manage Organizations</Link>
-                  </Button>
-                </>
+                <Button asChild className="w-full" variant="outline">
+                  <Link to="/manage-organizations">Manage Organizations</Link>
+                </Button>
               )}
               {session.user.user_type === 'guest' && (
                 <p>No quick actions available for guest users.</p>
               )}
-            </DsrBox>
-            <DsrBox title="Statistics">
-              <p>DSR statistics and metrics will be displayed here.</p>
             </DsrBox>
           </div>
         ) : null}

@@ -21,12 +21,19 @@ const Index = () => {
               <p>Your recent DSRs will appear here.</p>
             </DsrBox>
             <DsrBox title="Quick Actions">
-              <Button asChild className="w-full mb-2">
-                <Link to="/create-user">Create New DSR</Link>
-              </Button>
-              <Button asChild className="w-full" variant="outline">
-                <Link to="/manage-organizations">Manage Organizations</Link>
-              </Button>
+              {session.user.user_type !== 'guest' && (
+                <>
+                  <Button asChild className="w-full mb-2">
+                    <Link to="/create-user">Create New DSR</Link>
+                  </Button>
+                  <Button asChild className="w-full" variant="outline">
+                    <Link to="/manage-organizations">Manage Organizations</Link>
+                  </Button>
+                </>
+              )}
+              {session.user.user_type === 'guest' && (
+                <p>No quick actions available for guest users.</p>
+              )}
             </DsrBox>
             <DsrBox title="Statistics">
               <p>DSR statistics and metrics will be displayed here.</p>

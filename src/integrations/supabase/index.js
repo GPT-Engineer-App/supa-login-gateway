@@ -5,6 +5,18 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Create policy for user_table
+const createUserTablePolicy = async () => {
+  const { error } = await supabase.rpc('create_policy', {
+    table_name: 'user_table',
+    policy_name: 'user_own_data',
+    policy_definition: `auth.uid() = user_id`
+  });
+  if (error) console.error('Error creating policy:', error);
+};
+
+createUserTablePolicy();
+
 import React from "react";
 export const queryClient = new QueryClient();
 export function SupabaseProvider({ children }) {

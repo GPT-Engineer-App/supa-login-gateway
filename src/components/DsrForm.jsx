@@ -1,16 +1,34 @@
-import { useState } from 'react';
-import { useAddDsrTracker } from '../integrations/supabase';
+import { useState, useEffect } from 'react';
+import { useAddDsrTracker, useUserTable } from '../integrations/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { format } from 'date-fns';
 
 const DsrForm = () => {
   const [trackingId, setTrackingId] = useState('');
   const [comment, setComment] = useState('');
+  const [userOrg, setUserOrg] = useState('');
+  const [userOrgs, setUserOrgs] = useState([]);
   const { session } = useSupabaseAuth();
   const addDsrMutation = useAddDsrTracker();
+  const { data: users } = useUserTable();
+
+  useEffect(() => {
+    if (users) {
+      const orgs = [...new Set(users.map(user => user.user_org))];
+      setUserOrgs(orgs);
+    }
+  }, [users]);
+
+  useEffect(() => {
+    if (session && session.user.user_type === 'guest') {
+      const guestOrg = users?.find(user => user.user_id === session.user.user_id)?.user_org;
+      setUserOrg(guestOrg || '');
+    }
+  }, [session, users]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +43,8 @@ const DsrForm = () => {
       created_dt: currentTime,
       last_upd_dt: currentTime,
       last_upd_by: session.user.user_id,
-      created_by: session.user.user_id
+      created_by: session.user.user_id,
+      user_org: userOrg
     };
 
     try {
@@ -49,6 +68,24 @@ const DsrForm = () => {
           placeholder="Tracking ID"
           required
         />
+      </div>
+      <div>
+        <Select
+          value={userOrg}
+          onValueChange={setUserOrg}
+          disabled={session?.user.user_type === 'guest'}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select organization" />
+          </SelectTrigger>
+          <SelectContent>
+            {userOrgs.map((org) => (
+              <SelectItem key={org} value={org}>
+                {org}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <Textarea

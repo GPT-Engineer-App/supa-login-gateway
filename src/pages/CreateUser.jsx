@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAddUserTable } from '../integrations/supabase';
 import { Button } from "@/components/ui/button";
 import { format } from 'date-fns';
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { getUserOrganizations } from '../utils/userOrganizations';
 
 const CreateUser = () => {
   const { session } = useSupabaseAuth();
@@ -17,6 +18,11 @@ const CreateUser = () => {
     user_org: '',
     last_upd: '',
   });
+  const [userOrganizations, setUserOrganizations] = useState([]);
+
+  useEffect(() => {
+    setUserOrganizations(getUserOrganizations());
+  }, []);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
@@ -99,13 +105,16 @@ const CreateUser = () => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="user_org">User Organization</Label>
-            <Input
-              id="user_org"
-              name="user_org"
-              value={userData.user_org}
-              onChange={handleInputChange}
-              required
-            />
+            <Select name="user_org" onValueChange={(value) => handleSelectChange("user_org", value)} required>
+              <SelectTrigger>
+                <SelectValue placeholder="Select user organization" />
+              </SelectTrigger>
+              <SelectContent>
+                {userOrganizations.map((org) => (
+                  <SelectItem key={org} value={org}>{org}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <Button type="submit" className="w-full">
             Create User

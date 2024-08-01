@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSupabaseAuth } from "../integrations/supabase/auth";
-import { SupabaseAuthUI } from "../integrations/supabase/auth";
 import DsrBox from "../components/DsrBox";
 
 const Index = () => {
@@ -33,13 +32,7 @@ const Index = () => {
               <p>DSR statistics and metrics will be displayed here.</p>
             </DsrBox>
           </div>
-        ) : (
-          <div className="w-full max-w-md mx-auto">
-            <DsrBox title="Login">
-              <SupabaseAuthUI />
-            </DsrBox>
-          </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

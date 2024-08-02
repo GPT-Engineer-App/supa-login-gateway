@@ -22,7 +22,7 @@ const ManageOrganizations = () => {
 
   const handleAddOrg = async () => {
     if (newOrg.trim() !== '') {
-      const currentTime = new Date().toISOString();
+      const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
       const newOrgData = {
         org_name: newOrg.trim(),
         created_at: currentTime,
@@ -30,7 +30,6 @@ const ManageOrganizations = () => {
         last_upd: currentTime,
         last_upd_by: session.user.user_id
       };
-      console.log('New organization data:', newOrgData);
       try {
         await addOrgMutation.mutateAsync(newOrgData);
         setNewOrg('');
@@ -45,7 +44,7 @@ const ManageOrganizations = () => {
 
   const handleUpdateOrg = (oldOrg, newOrg) => {
     if (newOrg.trim() !== '' && oldOrg !== newOrg) {
-      const currentTime = new Date().toISOString();
+      const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
       updateOrgMutation.mutate({
         org_name: oldOrg,
         new_org_name: newOrg.trim(),

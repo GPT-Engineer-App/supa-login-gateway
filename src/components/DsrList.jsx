@@ -6,6 +6,7 @@ import { useUserTable } from '../integrations/supabase';
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { format } from 'date-fns';
 import { ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -176,7 +177,7 @@ const DsrList = () => {
                   <DialogTrigger asChild>
                     <Button variant="outline" onClick={() => setSelectedDsr(dsr)}>View</Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent className={cn("sm:max-w-[425px] md:max-w-[600px]", "max-h-[80vh] overflow-y-auto")}>
                     <DialogHeader>
                       <DialogTitle>DSR Details</DialogTitle>
                     </DialogHeader>

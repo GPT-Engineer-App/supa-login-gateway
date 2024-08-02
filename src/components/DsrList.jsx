@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useDsrTracker, useUpdateDsrTracker, useDeleteDsrTracker } from '../integrations/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,35 +25,29 @@ const DsrList = () => {
   const { session } = useSupabaseAuth();
   const { data: userData } = useUserTable();
 
-  const userAccess = useMemo(() => {
-    if (!session || !session.user) return { type: 'Guest', org: '' };
-    const user = userData?.find(u => u.user_id === session.user.user_id);
-    return {
-      type: user?.user_type || 'Guest',
-      org: user?.user_org || ''
-    };
-  }, [session, userData]);
+  const userAccess = {
+    type: session?.user?.user_type || 'Guest',
+    org: userData?.find(u => u.user_id === session?.user?.user_id)?.user_org || ''
+  };
 
-  const userOrg = userAccess.type === 'TSV-Admin' ? null : userAccess.org;
-  const isGuest = userAccess.type === 'Guest';
-  const { data, isLoading, isError, refetch } = useDsrTracker(currentPage, itemsPerPage, searchId, sortField, sortDirection, userOrg);
+  const { data, isLoading, isError, refetch } = useDsrTracker(
+    currentPage,
+    itemsPerPage,
+    searchId,
+    sortField,
+    sortDirection,
+    userAccess.type,
+    userAccess.org
+  );
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();
 
   useEffect(() => {
     refetch();
-  }, [currentPage, itemsPerPage, searchId, sortField, sortDirection, userOrg]);
+  }, [currentPage, itemsPerPage, searchId, sortField, sortDirection, userAccess.type, userAccess.org]);
 
-  const dsrs = useMemo(() => {
-    if (!data?.data) return [];
-    return data.data.filter(dsr => {
-      if (userAccess.type === 'TSV-Admin') return true;
-      if (userAccess.type === 'TSV') return dsr.user_org !== 'TSV-Admin';
-      return dsr.user_org === userAccess.org;
-    });
-  }, [data?.data, userAccess]);
-
-  const totalPages = Math.ceil((dsrs.length || 0) / itemsPerPage);
+  const dsrs = data?.data || [];
+  const totalPages = Math.ceil((data?.total || 0) / itemsPerPage);
 
   const handleSort = (field) => {
     if (field === sortField) {

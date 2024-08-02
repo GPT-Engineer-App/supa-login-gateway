@@ -154,8 +154,8 @@ export const useDeleteUserOrg = () => {
 
 // Hooks for dsr_tracker
 
-export const useDsrTracker = (page, pageSize, searchId, sortField, sortDirection, userOrg) => useQuery({
-    queryKey: ['dsr_tracker', page, pageSize, searchId, sortField, sortDirection, userOrg],
+export const useDsrTracker = (page, pageSize, searchId, sortField, sortDirection, userType, userOrg) => useQuery({
+    queryKey: ['dsr_tracker', page, pageSize, searchId, sortField, sortDirection, userType, userOrg],
     queryFn: async () => {
         let query = supabase.from('dsr_tracker').select('*', { count: 'exact' });
 
@@ -163,7 +163,7 @@ export const useDsrTracker = (page, pageSize, searchId, sortField, sortDirection
             query = query.ilike('po_number', `%${searchId}%`);
         }
 
-        if (userOrg !== null) {
+        if (userType === 'Guest' && userOrg) {
             query = query.eq('user_org', userOrg);
         }
 

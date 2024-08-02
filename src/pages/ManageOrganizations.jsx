@@ -26,8 +26,8 @@ const ManageOrganizations = () => {
         org_name: newOrg.trim(),
         created_at: new Date().toISOString(),
         created_by: session.user.user_id,
-        last_upd: session.user.user_id,
-        last_upd_by: new Date().toISOString()
+        last_upd: new Date().toISOString(),
+        last_upd_by: session.user.user_id
       };
       try {
         await addOrgMutation.mutateAsync(newOrgData);
@@ -92,20 +92,20 @@ const ManageOrganizations = () => {
           />
           <ul className="space-y-2">
             {filteredOrganizations.map((org) => (
-              <li key={org} className="flex justify-between items-center">
-                {editingOrg === org ? (
+              <li key={org.org_name} className="flex justify-between items-center">
+                {editingOrg === org.org_name ? (
                   <Input
                     value={editingOrg}
                     onChange={(e) => setEditingOrg(e.target.value)}
-                    onBlur={() => handleUpdateOrg(org, editingOrg)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleUpdateOrg(org, editingOrg)}
+                    onBlur={() => handleUpdateOrg(org.org_name, editingOrg)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleUpdateOrg(org.org_name, editingOrg)}
                   />
                 ) : (
-                  <span>{org}</span>
+                  <span>{org.org_name}</span>
                 )}
                 <div>
-                  <Button variant="outline" onClick={() => setEditingOrg(org)} className="mr-2">Edit</Button>
-                  <Button variant="destructive" onClick={() => handleDeleteOrg(org)}>Delete</Button>
+                  <Button variant="outline" onClick={() => setEditingOrg(org.org_name)} className="mr-2">Edit</Button>
+                  <Button variant="destructive" onClick={() => handleDeleteOrg(org.org_name)}>Delete</Button>
                 </div>
               </li>
             ))}

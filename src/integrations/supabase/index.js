@@ -89,6 +89,43 @@ export const useDeleteUserTable = () => {
     });
 };
 
+// Hooks for user_org
+
+export const useUserOrg = () => useQuery({
+    queryKey: ['user_org'],
+    queryFn: () => fromSupabase(supabase.from('user_org').select('*').order('created_at', { ascending: false })),
+});
+
+export const useAddUserOrg = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newOrg) => fromSupabase(supabase.from('user_org').insert([newOrg])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('user_org');
+        },
+    });
+};
+
+export const useUpdateUserOrg = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ org_name, ...updateData }) => fromSupabase(supabase.from('user_org').update(updateData).eq('org_name', org_name)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('user_org');
+        },
+    });
+};
+
+export const useDeleteUserOrg = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (org_name) => fromSupabase(supabase.from('user_org').delete().eq('org_name', org_name)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('user_org');
+        },
+    });
+};
+
 // Hooks for dsr_tracker
 
 export const useDsrTracker = () => useQuery({

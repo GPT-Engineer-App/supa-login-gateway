@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAddDsrTracker, useUserTable } from '../integrations/supabase';
+import { useAddDsrTracker, useUserTable, useUserOrg } from '../integrations/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,17 +11,10 @@ const DsrForm = () => {
   const [trackingId, setTrackingId] = useState('');
   const [comment, setComment] = useState('');
   const [userOrg, setUserOrg] = useState('');
-  const [userOrgs, setUserOrgs] = useState([]);
   const { session } = useSupabaseAuth();
   const addDsrMutation = useAddDsrTracker();
   const { data: users } = useUserTable();
-
-  useEffect(() => {
-    if (users) {
-      const orgs = [...new Set(users.map(user => user.user_org))];
-      setUserOrgs(orgs);
-    }
-  }, [users]);
+  const { data: userOrgs } = useUserOrg();
 
   useEffect(() => {
     if (session && session.user.user_type === 'guest') {

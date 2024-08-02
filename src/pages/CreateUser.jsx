@@ -7,9 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { getUserOrganizations } from '../utils/userOrganizations';
 import { Navigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useUserOrg } from '../integrations/supabase';
 
 const CreateUser = () => {
   const { session } = useSupabaseAuth();
@@ -25,13 +25,10 @@ const CreateUser = () => {
     user_org: '',
     last_upd: '',
   });
-  const [userOrganizations, setUserOrganizations] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
 
-  useEffect(() => {
-    setUserOrganizations(getUserOrganizations());
-  }, []);
+  const { data: userOrganizations } = useUserOrg();
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 

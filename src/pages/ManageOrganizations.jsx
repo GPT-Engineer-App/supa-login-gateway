@@ -1,50 +1,61 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { getUserOrganizations, addUserOrganization, updateUserOrganization, deleteUserOrganization } from '../utils/userOrganizations';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Navigate } from 'react-router-dom';
+import { useUserOrg, useAddUserOrg, useUpdateUserOrg, useDeleteUserOrg } from '../integrations/supabase';
+import { format } from 'date-fns';
 
 const ManageOrganizations = () => {
-  const [organizations, setOrganizations] = useState([]);
   const [newOrg, setNewOrg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingOrg, setEditingOrg] = useState(null);
   const [error, setError] = useState(null);
   const { session } = useSupabaseAuth();
-
-  useEffect(() => {
-    if (session?.user?.user_type === 'admin') {
-      setOrganizations(getUserOrganizations());
-    }
-  }, [session]);
+  const { data: organizations, isLoading, isError } = useUserOrg();
+  const addOrgMutation = useAddUserOrg();
+  const updateOrgMutation = useUpdateUserOrg();
+  const deleteOrgMutation = useDeleteUserOrg();
 
   const handleAddOrg = () => {
     if (newOrg.trim() !== '') {
-      addUserOrganization(newOrg.trim());
-      setOrganizations(getUserOrganizations());
+      const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX");
+      addOrgMutation.mutate({
+        org_name: newOrg.trim(),
+        created_at: currentTime,
+        created_by: session.user.user_id,
+        last_upd: currentTime,
+        last_upd_by: session.user.user_id
+      });
       setNewOrg('');
     }
   };
 
   const handleUpdateOrg = (oldOrg, newOrg) => {
     if (newOrg.trim() !== '' && oldOrg !== newOrg) {
-      updateUserOrganization(oldOrg, newOrg.trim());
-      setOrganizations(getUserOrganizations());
+      const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX");
+      updateOrgMutation.mutate({
+        org_name: oldOrg,
+        new_org_name: newOrg.trim(),
+        last_upd: currentTime,
+        last_upd_by: session.user.user_id
+      });
       setEditingOrg(null);
     }
   };
 
   const handleDeleteOrg = (org) => {
-    deleteUserOrganization(org);
-    setOrganizations(getUserOrganizations());
+    deleteOrgMutation.mutate(org);
   };
 
-  const filteredOrganizations = organizations.filter(org =>
-    org.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredOrganizations = organizations?.filter(org =>
+    org.org_name.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading organizations</div>;
 
   if (!session) {
     return <Navigate to="/login" replace />;

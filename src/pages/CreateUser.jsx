@@ -81,6 +81,10 @@ const CreateUser = () => {
         setSuccess(true);
         setSelectedUser(null);
       } else {
+        if (!userData.password) {
+          setError("Password is required for new users.");
+          return;
+        }
         await addUserMutation.mutateAsync({ 
           ...userData, 
           created_at: currentTime,
@@ -141,14 +145,14 @@ const CreateUser = () => {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Password {selectedUser ? '(Leave blank to keep current)' : ''}</Label>
           <Input
             id="password"
             name="password"
             type="password"
             value={userData.password}
             onChange={handleInputChange}
-            required
+            required={!selectedUser}
           />
         </div>
         <div className="space-y-2">

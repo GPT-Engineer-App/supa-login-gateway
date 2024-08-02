@@ -105,7 +105,14 @@ export const useAddUserOrg = () => {
     return useMutation({
         mutationFn: (newOrg) => {
             console.log('Mutation function received:', newOrg);
-            return fromSupabase(supabase.from('user_org').insert([newOrg]));
+            // Ensure all required fields are present and not undefined
+            const sanitizedOrg = {
+                ...newOrg,
+                created_by: newOrg.created_by || 'system',
+                last_upd_by: newOrg.last_upd_by || 'system'
+            };
+            console.log('Sanitized organization data:', sanitizedOrg);
+            return fromSupabase(supabase.from('user_org').insert([sanitizedOrg]));
         },
         onSuccess: () => {
             queryClient.invalidateQueries('user_org');

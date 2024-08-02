@@ -7,6 +7,7 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Navigate } from 'react-router-dom';
 import { useUserOrg, useAddUserOrg, useUpdateUserOrg, useDeleteUserOrg } from '../integrations/supabase';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const ManageOrganizations = () => {
   const [newOrg, setNewOrg] = useState('');
@@ -19,17 +20,23 @@ const ManageOrganizations = () => {
   const updateOrgMutation = useUpdateUserOrg();
   const deleteOrgMutation = useDeleteUserOrg();
 
-  const handleAddOrg = () => {
+  const handleAddOrg = async () => {
     if (newOrg.trim() !== '') {
       const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX");
-      addOrgMutation.mutate({
-        org_name: newOrg.trim(),
-        created_at: currentTime,
-        created_by: session.user.user_id,
-        last_upd: currentTime,
-        last_upd_by: session.user.user_id
-      });
-      setNewOrg('');
+      try {
+        await addOrgMutation.mutateAsync({
+          org_name: newOrg.trim(),
+          created_at: currentTime,
+          created_by: session.user.user_id,
+          last_upd: currentTime,
+          last_upd_by: session.user.user_id
+        });
+        setNewOrg('');
+        toast.success('Organization added successfully');
+      } catch (error) {
+        console.error('Error adding organization:', error);
+        toast.error('Failed to add organization');
+      }
     }
   };
 

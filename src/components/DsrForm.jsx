@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { format } from 'date-fns/format';
+import { format } from 'date-fns';
 
 const DsrForm = () => {
   const [trackingId, setTrackingId] = useState('');

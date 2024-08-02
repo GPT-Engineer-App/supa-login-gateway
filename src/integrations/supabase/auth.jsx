@@ -19,30 +19,31 @@ export const SupabaseAuthProviderInner = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
 
-  const login = async (email, password) => {
+  const login = async (userId, password) => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('user_table')
-      .select('*')
-      .eq('user_id', email)
-      .eq('password', password)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('user_table')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('password', password)
+        .single();
 
-    if (error) {
+      if (error) throw error;
+
+      if (data) {
+        setSession({ user: data });
+        queryClient.invalidateQueries('user');
+        setLoading(false);
+        return { session: { user: data } };
+      } else {
+        throw new Error('Invalid login credentials');
+      }
+    } catch (error) {
       console.error('Error during login:', error);
       setLoading(false);
-      return { error: 'Invalid login credentials' };
+      return { error: error.message || 'Invalid login credentials' };
     }
-
-    if (data) {
-      setSession({ user: data });
-      queryClient.invalidateQueries('user');
-      setLoading(false);
-      return { session: { user: data } };
-    }
-
-    setLoading(false);
-    return { error: 'Invalid login credentials' };
   };
 
   const logout = () => {

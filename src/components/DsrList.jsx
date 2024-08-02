@@ -39,7 +39,7 @@ const DsrList = () => {
   const itemsPerPage = 10;
   const { session } = useSupabaseAuth();
   const { data: userData } = useUserTable();
-  const userOrg = userData?.find(user => user?.user_id === session?.user?.user_id)?.user_org || '';
+  const userOrg = session?.user?.user_type === 'admin' ? null : userData?.find(user => user?.user_id === session?.user?.user_id)?.user_org || '';
   const { data, isLoading, isError, refetch } = useDsrTracker(currentPage, itemsPerPage, searchId, sortField, sortDirection, userOrg);
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();

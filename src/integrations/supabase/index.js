@@ -163,7 +163,7 @@ export const useDsrTracker = (page, pageSize, searchId, sortField, sortDirection
             query = query.ilike('po_number', `%${searchId}%`);
         }
 
-        if (userOrg) {
+        if (userOrg !== null) {
             query = query.eq('user_org', userOrg);
         }
 

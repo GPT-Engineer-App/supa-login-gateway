@@ -74,12 +74,8 @@ const DsrList = () => {
   };
 
   const handleUpdate = async (dsr) => {
-    if (!session?.user) {
-      toast.error('You must be logged in to update DSRs.');
-      return;
-    }
-    if (session.user.user_type === 'guest') {
-      toast.error('Guest users are not allowed to update DSRs.');
+    if (!session?.user || session.user.user_type === 'guest') {
+      toast.error('You do not have permission to update DSRs.');
       return;
     }
     if (!updateComment.trim()) return;
@@ -218,7 +214,9 @@ const DsrList = () => {
                               placeholder="Add a new comment"
                             />
                             <Button onClick={() => handleUpdate(selectedDsr)} className="mt-2">Update</Button>
-                            <Button onClick={() => handleDelete(selectedDsr.id)} variant="destructive" className="mt-2 ml-2">Delete</Button>
+                            {session.user.user_type === 'TSV-Admin' && (
+                              <Button onClick={() => handleDelete(selectedDsr.id)} variant="destructive" className="mt-2 ml-2">Delete</Button>
+                            )}
                           </div>
                         )}
                       </div>

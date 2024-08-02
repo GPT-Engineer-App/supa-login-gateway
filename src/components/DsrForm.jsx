@@ -14,6 +14,10 @@ const DsrForm = () => {
   const [comment, setComment] = useState('');
   const [userOrg, setUserOrg] = useState('');
   const { session } = useSupabaseAuth();
+
+  if (!session || session.user.user_type === 'guest') {
+    return null; // Don't render the form for guests or unauthenticated users
+  }
   const addDsrMutation = useAddDsrTracker();
   const { data: users } = useUserTable();
   const { data: userOrgs = [], isLoading: isLoadingOrgs, error: orgsError } = useUserOrg();

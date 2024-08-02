@@ -96,7 +96,7 @@ export const useUserOrg = () => useQuery({
     queryFn: async () => {
         const { data, error } = await supabase.from('user_org').select('*').order('created_at', { ascending: false });
         if (error) throw error;
-        return data;
+        return Array.isArray(data) ? data : data ? [data] : [];
     },
 });
 

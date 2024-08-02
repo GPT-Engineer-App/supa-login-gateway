@@ -16,6 +16,7 @@ const DsrForm = () => {
   const addDsrMutation = useAddDsrTracker();
   const { data: users } = useUserTable();
   const { data: userOrgs = [], isLoading: isLoadingOrgs, error: orgsError } = useUserOrg();
+  const userOrgOptions = Array.isArray(userOrgs) ? userOrgs : userOrgs ? [userOrgs] : [];
 
   useEffect(() => {
     if (session && session.user.user_type === 'guest') {
@@ -85,9 +86,9 @@ const DsrForm = () => {
             <SelectValue placeholder="Select organization" />
           </SelectTrigger>
           <SelectContent>
-            {userOrgs?.map((org) => (
-              <SelectItem key={org} value={org}>
-                {org}
+            {userOrgOptions.map((org) => (
+              <SelectItem key={org.org_name} value={org.org_name}>
+                {org.org_name}
               </SelectItem>
             ))}
           </SelectContent>

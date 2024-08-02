@@ -18,27 +18,24 @@ const Index = () => {
         </div>
 
         {session ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {session.user.user_type !== 'guest' && (
-              <DsrBox title="Create New DSR">
-                <DsrForm />
-              </DsrBox>
-            )}
-            <DsrBox title="DSR List" className={session.user.user_type === 'guest' ? 'col-span-2' : ''}>
-              <DsrList />
-            </DsrBox>
-            {session.user.user_type !== 'guest' && (
-              <DsrBox title="Quick Actions">
-                {session.user.user_type !== 'guest' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {session.user.user_type !== 'guest' && (
+                <DsrBox title="Create New DSR">
+                  <DsrForm />
+                </DsrBox>
+              )}
+              {session.user.user_type === 'admin' && (
+                <DsrBox title="Manage Organizations">
                   <Button asChild className="w-full" variant="outline">
                     <Link to="/manage-organizations">Manage Organizations</Link>
                   </Button>
-                )}
-                {session.user.user_type === 'guest' && (
-                  <p>No quick actions available for guest users.</p>
-                )}
-              </DsrBox>
-            )}
+                </DsrBox>
+              )}
+            </div>
+            <DsrBox title="DSR List" className="w-full">
+              <DsrList />
+            </DsrBox>
           </div>
         ) : null}
       </div>

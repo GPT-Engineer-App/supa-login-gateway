@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Navigate } from 'react-router-dom';
 import { useUserOrg, useAddUserOrg, useUpdateUserOrg, useDeleteUserOrg } from '../integrations/supabase';
-import { format } from 'date-fns';
+import { format } from 'date-fns-tz';
 import { toast } from 'sonner';
 
 const ManageOrganizations = () => {
@@ -22,7 +22,7 @@ const ManageOrganizations = () => {
 
   const handleAddOrg = async () => {
     if (newOrg.trim() !== '') {
-      const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX");
+      const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX", { timeZone: 'UTC' });
       try {
         await addOrgMutation.mutateAsync({
           org_name: newOrg.trim(),
@@ -42,7 +42,7 @@ const ManageOrganizations = () => {
 
   const handleUpdateOrg = (oldOrg, newOrg) => {
     if (newOrg.trim() !== '' && oldOrg !== newOrg) {
-      const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX");
+      const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX", { timeZone: 'UTC' });
       updateOrgMutation.mutate({
         org_name: oldOrg,
         new_org_name: newOrg.trim(),

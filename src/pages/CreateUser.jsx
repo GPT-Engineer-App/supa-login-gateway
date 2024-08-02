@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAddUserTable, useUserTable } from '../integrations/supabase';
+import { useAddUserTable, useUserTable, useUpdateUserTable, useDeleteUserTable } from '../integrations/supabase';
 import { Button } from "@/components/ui/button";
 import { format } from 'date-fns';
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { getUserOrganizations } from '../utils/userOrganizations';
 import { Navigate } from 'react-router-dom';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const CreateUser = () => {
   const { session } = useSupabaseAuth();
@@ -25,6 +26,8 @@ const CreateUser = () => {
     last_upd: '',
   });
   const [userOrganizations, setUserOrganizations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     setUserOrganizations(getUserOrganizations());
@@ -33,6 +36,8 @@ const CreateUser = () => {
   const [success, setSuccess] = useState(false);
 
   const addUserMutation = useAddUserTable();
+  const updateUserMutation = useUpdateUserTable();
+  const deleteUserMutation = useDeleteUserTable();
   const { data: existingUsers } = useUserTable();
 
   const handleInputChange = (e) => {
@@ -53,7 +58,8 @@ const CreateUser = () => {
     const isDuplicate = existingUsers?.some(user => 
       user.user_id === userData.user_id && 
       user.user_type === userData.user_type && 
-      user.user_org === userData.user_org
+      user.user_org === userData.user_org &&
+      (!selectedUser || user.id !== selectedUser.id)
     );
 
     if (isDuplicate) {
@@ -63,81 +69,152 @@ const CreateUser = () => {
 
     try {
       const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ssXXX");
-      await addUserMutation.mutateAsync({ ...userData, last_upd: currentTime });
-      setSuccess(true);
+      if (selectedUser) {
+        await updateUserMutation.mutateAsync({ id: selectedUser.id, ...userData, last_upd: currentTime });
+        setSuccess(true);
+        setSelectedUser(null);
+      } else {
+        await addUserMutation.mutateAsync({ ...userData, last_upd: currentTime });
+        setSuccess(true);
+      }
       setUserData({ user_id: '', password: '', user_type: '', user_org: '', last_upd: '' });
     } catch (error) {
       setError(error.message);
     }
   };
 
+  const handleDelete = async (user) => {
+    if (window.confirm(`Are you sure you want to delete user ${user.user_id}?`)) {
+      try {
+        await deleteUserMutation.mutateAsync(user.id);
+        setSuccess(true);
+        setSelectedUser(null);
+        setUserData({ user_id: '', password: '', user_type: '', user_org: '', last_upd: '' });
+      } catch (error) {
+        setError(error.message);
+      }
+    }
+  };
+
+  const filteredUsers = existingUsers?.filter(user =>
+    user.user_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.user_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.user_org.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-md">
-        <h1 className="text-3xl font-bold text-center">Create User</h1>
-        <p className="text-center text-gray-600">Admin access only</p>
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {success && (
-          <Alert>
-            <AlertDescription>User created successfully!</AlertDescription>
-          </Alert>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="user_id">User ID</Label>
-            <Input
-              id="user_id"
-              name="user_id"
-              value={userData.user_id}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={userData.password}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="user_type">User Type</Label>
-            <Select name="user_type" onValueChange={(value) => handleSelectChange("user_type", value)} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select user type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="guest">Guest</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="user_org">User Organization</Label>
-            <Select name="user_org" onValueChange={(value) => handleSelectChange("user_org", value)} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select user organization" />
-              </SelectTrigger>
-              <SelectContent>
-                {userOrganizations.map((org) => (
-                  <SelectItem key={org} value={org}>{org}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button type="submit" className="w-full">
-            Create User
-          </Button>
-        </form>
+    <div className="container mx-auto p-4 space-y-6">
+      <h1 className="text-3xl font-bold text-center">Manage Users</h1>
+      <p className="text-center text-gray-600">Admin access only</p>
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      {success && (
+        <Alert>
+          <AlertDescription>Operation completed successfully!</AlertDescription>
+        </Alert>
+      )}
+      <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-xl shadow-md">
+        <div className="space-y-2">
+          <Label htmlFor="user_id">User ID</Label>
+          <Input
+            id="user_id"
+            name="user_id"
+            value={userData.user_id}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            value={userData.password}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="user_type">User Type</Label>
+          <Select name="user_type" onValueChange={(value) => handleSelectChange("user_type", value)} value={userData.user_type} required>
+            <SelectTrigger>
+              <SelectValue placeholder="Select user type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="guest">Guest</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="user_org">User Organization</Label>
+          <Select name="user_org" onValueChange={(value) => handleSelectChange("user_org", value)} value={userData.user_org} required>
+            <SelectTrigger>
+              <SelectValue placeholder="Select user organization" />
+            </SelectTrigger>
+            <SelectContent>
+              {userOrganizations.map((org) => (
+                <SelectItem key={org} value={org}>{org}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button type="submit" className="w-full">
+          {selectedUser ? 'Update User' : 'Create User'}
+        </Button>
+      </form>
+      <div className="space-y-4 bg-white p-6 rounded-xl shadow-md">
+        <h2 className="text-2xl font-bold">User List</h2>
+        <Input
+          type="text"
+          placeholder="Search users..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>User ID</TableHead>
+              <TableHead>User Type</TableHead>
+              <TableHead>Organization</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredUsers?.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.user_id}</TableCell>
+                <TableCell>{user.user_type}</TableCell>
+                <TableCell>{user.user_org}</TableCell>
+                <TableCell>
+                  <Button
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setUserData({
+                        user_id: user.user_id,
+                        password: '',
+                        user_type: user.user_type,
+                        user_org: user.user_org,
+                        last_upd: user.last_upd,
+                      });
+                    }}
+                    className="mr-2"
+                  >
+                    Edit
+                  </Button>
+                  <Button onClick={() => handleDelete(user)} variant="destructive">
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

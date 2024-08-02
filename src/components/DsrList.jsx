@@ -21,7 +21,11 @@ const DsrList = () => {
     ? dsrs?.filter(dsr => dsr.po_number.includes(searchId))
     : dsrs;
 
-  const sortedDsrs = filteredDsrs?.sort((a, b) => new Date(b.last_upd_dt) - new Date(a.last_upd_dt)).slice(0, 10);
+  const userVisibleDsrs = filteredDsrs?.filter(dsr => 
+    session.user.user_type === 'guest' ? dsr.user_org === session.user.user_org : true
+  );
+
+  const sortedDsrs = userVisibleDsrs?.sort((a, b) => new Date(b.last_upd_dt) - new Date(a.last_upd_dt)).slice(0, 10);
 
   const handleUpdate = async (dsr) => {
     if (session.user.user_type === 'guest') {
@@ -87,6 +91,7 @@ const DsrList = () => {
             <TableHead>Tracking ID</TableHead>
             <TableHead>Last Updated</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Organization</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -96,6 +101,7 @@ const DsrList = () => {
               <TableCell>{dsr.po_number}</TableCell>
               <TableCell>{new Date(dsr.last_upd_dt).toLocaleString()}</TableCell>
               <TableCell>{JSON.parse(dsr.comments || '[]').slice(-1)[0]?.comment || 'No status'}</TableCell>
+              <TableCell>{dsr.user_org}</TableCell>
               <TableCell>
                 <Dialog>
                   <DialogTrigger asChild>
@@ -110,6 +116,7 @@ const DsrList = () => {
                         <h3 className="font-bold">Tracking ID: {selectedDsr.po_number}</h3>
                         <p>Created: {new Date(selectedDsr.created_dt).toLocaleString()}</p>
                         <p>Last Updated: {new Date(selectedDsr.last_upd_dt).toLocaleString()}</p>
+                        <p>Organization: {selectedDsr.user_org}</p>
                         <h4 className="font-semibold mt-2">Comments:</h4>
                         <ul className="list-disc pl-5">
                           {JSON.parse(selectedDsr.comments || '[]').map((comment, index) => (

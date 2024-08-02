@@ -163,8 +163,8 @@ const CreateUser = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="TSV-Admin">TSV-Admin</SelectItem>
-              <SelectItem value="TSV">TSV</SelectItem>
-              <SelectItem value="guest">Guest</SelectItem>
+              <SelectItem value="TSV-User">TSV-User</SelectItem>
+              <SelectItem value="Guest">Guest</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -181,9 +181,30 @@ const CreateUser = () => {
             </SelectContent>
           </Select>
         </div>
-        <Button type="submit" className="w-full">
-          {selectedUser ? 'Update User' : 'Create User'}
-        </Button>
+        <div className="flex justify-between">
+          <Button type="submit" className="flex-grow mr-2">
+            {selectedUser ? 'Update User' : 'Create User'}
+          </Button>
+          {selectedUser && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setSelectedUser(null);
+                setUserData({
+                  user_id: '',
+                  password: '',
+                  user_type: '',
+                  user_org: '',
+                  last_upd: '',
+                });
+              }}
+              className="flex-grow ml-2"
+            >
+              Cancel
+            </Button>
+          )}
+        </div>
       </form>
       <div className="space-y-4 bg-white p-6 rounded-xl shadow-md">
         <h2 className="text-2xl font-bold">User List</h2>
@@ -209,24 +230,50 @@ const CreateUser = () => {
                 <TableCell>{user.user_type}</TableCell>
                 <TableCell>{user.user_org}</TableCell>
                 <TableCell>
-                  <Button
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setUserData({
-                        user_id: user.user_id,
-                        password: '', // Keep password empty when editing
-                        user_type: user.user_type,
-                        user_org: user.user_org,
-                        last_upd: user.last_upd,
-                      });
-                    }}
-                    className="mr-2"
-                  >
-                    Edit
-                  </Button>
-                  <Button onClick={() => handleDelete(user)} variant="destructive">
-                    Delete
-                  </Button>
+                  {selectedUser && selectedUser.id === user.id ? (
+                    <>
+                      <Button onClick={handleSubmit} className="mr-2">
+                        Save
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setSelectedUser(null);
+                          setUserData({
+                            user_id: '',
+                            password: '',
+                            user_type: '',
+                            user_org: '',
+                            last_upd: '',
+                          });
+                        }}
+                        variant="outline"
+                        className="mr-2"
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setUserData({
+                            user_id: user.user_id,
+                            password: '',
+                            user_type: user.user_type,
+                            user_org: user.user_org,
+                            last_upd: user.last_upd,
+                          });
+                        }}
+                        className="mr-2"
+                      >
+                        Edit
+                      </Button>
+                      <Button onClick={() => handleDelete(user)} variant="destructive">
+                        Delete
+                      </Button>
+                    </>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

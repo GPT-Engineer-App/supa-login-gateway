@@ -25,8 +25,8 @@ const ManageOrganizations = () => {
       const currentTime = new Date().toISOString();
       const newOrgData = {
         org_name: newOrg.trim(),
-        created_by: session.user.email || 'system',
-        last_upd_by: session.user.email || 'system'
+        created_by: session.user.email,
+        last_upd_by: session.user.email
       };
       try {
         await addOrgMutation.mutateAsync(newOrgData);

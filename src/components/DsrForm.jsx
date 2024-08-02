@@ -47,8 +47,9 @@ const DsrForm = () => {
       created_dt: currentTime,
       last_upd_dt: currentTime,
       last_upd_by: session.user.email || session.user.user_id,
-      created_by: session.user.email || session.user.user_id,
-      user_org: userOrg
+      created_by: session.user.email,
+      user_org: userOrg,
+      last_upd_by: session.user.email
     };
 
     try {

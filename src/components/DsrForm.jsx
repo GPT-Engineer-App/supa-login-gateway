@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAddDsrTracker, useUserTable, useUserOrg } from '../integrations/supabase';
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +15,7 @@ const DsrForm = () => {
   const { session } = useSupabaseAuth();
   const addDsrMutation = useAddDsrTracker();
   const { data: users } = useUserTable();
-  const { data: userOrgs } = useUserOrg();
+  const { data: userOrgs = [], isLoading: isLoadingOrgs, error: orgsError } = useUserOrg();
 
   useEffect(() => {
     if (session && session.user.user_type === 'guest') {
@@ -55,6 +56,14 @@ const DsrForm = () => {
     }
   };
 
+  if (isLoadingOrgs) {
+    return <Spinner />;
+  }
+
+  if (orgsError) {
+    return <div>Error loading organizations: {orgsError.message}</div>;
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
@@ -76,7 +85,7 @@ const DsrForm = () => {
             <SelectValue placeholder="Select organization" />
           </SelectTrigger>
           <SelectContent>
-            {userOrgs.map((org) => (
+            {userOrgs?.map((org) => (
               <SelectItem key={org} value={org}>
                 {org}
               </SelectItem>

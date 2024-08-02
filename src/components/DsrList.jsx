@@ -36,7 +36,7 @@ const DsrList = () => {
   const [sortDirection, setSortDirection] = useState('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const { data: dsrs, isLoading, isError, refetch } = useDsrTracker(currentPage, itemsPerPage, searchId, sortField, sortDirection);
+  const { data, isLoading, isError, refetch } = useDsrTracker(currentPage, itemsPerPage, searchId, sortField, sortDirection);
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();
   const { session } = useSupabaseAuth();
@@ -45,7 +45,8 @@ const DsrList = () => {
     refetch();
   }, [currentPage, itemsPerPage, searchId, sortField, sortDirection]);
 
-  const totalPages = Math.ceil((dsrs?.total || 0) / itemsPerPage);
+  const dsrs = data?.data || [];
+  const totalPages = Math.ceil((data?.total || 0) / itemsPerPage);
 
   const handleSort = (field) => {
     if (field === sortField) {
@@ -155,7 +156,7 @@ const DsrList = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {paginatedDsrs?.map((dsr) => (
+          {dsrs.map((dsr) => (
             <TableRow key={dsr.id}>
               <TableCell>{dsr.po_number}</TableCell>
               <TableCell>{new Date(dsr.created_dt).toLocaleString()}</TableCell>

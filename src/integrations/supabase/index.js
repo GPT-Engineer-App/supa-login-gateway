@@ -120,9 +120,18 @@ export const useAddUserOrg = () => {
 export const useUpdateUserOrg = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ org_name, ...updateData }) => fromSupabase(supabase.from('user_org').update(updateData).eq('org_name', org_name)),
+        mutationFn: ({ org_name, new_org_name, last_upd, last_upd_by }) => 
+            fromSupabase(supabase.from('user_org').update({ 
+                org_name: new_org_name, 
+                last_upd, 
+                last_upd_by 
+            }).eq('org_name', org_name)),
         onSuccess: () => {
             queryClient.invalidateQueries('user_org');
+        },
+        onError: (error) => {
+            console.error('Error updating organization:', error);
+            throw error;
         },
     });
 };

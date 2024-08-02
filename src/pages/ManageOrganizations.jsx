@@ -42,16 +42,23 @@ const ManageOrganizations = () => {
     }
   };
 
-  const handleUpdateOrg = (oldOrg, newOrg) => {
+  const handleUpdateOrg = async (oldOrg, newOrg) => {
     if (newOrg.trim() !== '' && oldOrg !== newOrg) {
       const currentTime = new Date().toISOString();
-      updateOrgMutation.mutate({
-        org_name: oldOrg,
-        new_org_name: newOrg.trim(),
-        last_upd: currentTime,
-        last_upd_by: session.user.email
-      });
-      setEditingOrg(null);
+      try {
+        await updateOrgMutation.mutateAsync({
+          org_name: oldOrg,
+          new_org_name: newOrg.trim(),
+          last_upd: currentTime,
+          last_upd_by: session.user.email
+        });
+        setEditingOrg(null);
+        toast.success('Organization updated successfully');
+      } catch (error) {
+        console.error('Error updating organization:', error);
+        toast.error(`Failed to update organization: ${error.message}`);
+        setError(`Failed to update organization: ${error.message}`);
+      }
     }
   };
 

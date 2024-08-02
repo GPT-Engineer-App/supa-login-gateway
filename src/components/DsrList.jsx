@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import { ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
-import { logError } from '../utils/errorLogging';
+import { logError } from '../utils/errorLogging.js';
 
 const DsrList = () => {
   const [searchId, setSearchId] = useState('');

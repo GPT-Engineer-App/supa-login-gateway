@@ -37,17 +37,18 @@ const DsrForm = () => {
       return;
     }
     const currentTime = new Date().toISOString();
+    const userId = session.user.email || session.user.user_id;
     const newDsr = {
       po_number: trackingId,
       comments: JSON.stringify([{
         date: currentTime,
-        user: session.user.email,
+        user: userId,
         comment: comment
       }]),
       created_dt: currentTime,
       last_upd_dt: currentTime,
-      last_upd_by: session.user.email || session.user.user_id,
-      created_by: session.user.email || session.user.user_id,
+      last_upd_by: userId,
+      created_by: userId,
       user_org: userOrg,
     };
 

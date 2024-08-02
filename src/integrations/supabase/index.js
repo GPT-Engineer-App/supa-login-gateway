@@ -105,7 +105,13 @@ export const useAddUserOrg = () => {
     return useMutation({
         mutationFn: (newOrg) => {
             console.log('Mutation function received:', newOrg);
-            return fromSupabase(supabase.from('user_org').insert([newOrg]));
+            // Ensure timestamps are in ISO format
+            const formattedOrg = {
+                ...newOrg,
+                created_at: new Date(newOrg.created_at).toISOString(),
+                last_upd: new Date(newOrg.last_upd).toISOString()
+            };
+            return fromSupabase(supabase.from('user_org').insert([formattedOrg]));
         },
         onSuccess: () => {
             queryClient.invalidateQueries('user_org');

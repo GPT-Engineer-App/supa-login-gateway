@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAddDsrTracker, useUserTable, useUserOrg } from '../integrations/supabase';
-import { Spinner } from "@/components/ui/spinner";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -57,7 +57,7 @@ const DsrForm = () => {
   };
 
   if (isLoadingOrgs) {
-    return <Spinner />;
+    return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
   }
 
   if (orgsError) {

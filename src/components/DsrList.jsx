@@ -187,13 +187,26 @@ const DsrList = () => {
                         <p>Last Updated: {new Date(selectedDsr.last_upd_dt).toLocaleString()}</p>
                         <p>Organization: {selectedDsr.user_org}</p>
                         <h4 className="font-semibold mt-2">Comments:</h4>
-                        <ul className="list-disc pl-5">
-                          {JSON.parse(selectedDsr.comments || '[]').map((comment, index) => (
-                            <li key={index}>
-                              {new Date(comment.date).toLocaleString()} - {comment.user}: {comment.comment}
-                            </li>
-                          ))}
-                        </ul>
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {JSON.parse(selectedDsr.comments || '[]').map((comment, index) => (
+                                <tr key={index}>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(comment.date).toLocaleString()}</td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{comment.user}</td>
+                                  <td className="px-6 py-4 text-sm text-gray-500">{comment.comment}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                         {session.user.user_type !== 'guest' && (
                           <div className="mt-2">
                             <Textarea

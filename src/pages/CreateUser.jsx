@@ -67,12 +67,17 @@ const CreateUser = () => {
     try {
       const currentTime = new Date().toISOString();
       if (selectedUser) {
-        await updateUserMutation.mutateAsync({ 
+        const updateData = { 
           id: selectedUser.id, 
           ...userData, 
           last_upd: currentTime,
           last_upd_by: session.user.email
-        });
+        };
+        // Only include password in update if it's not empty
+        if (!updateData.password) {
+          delete updateData.password;
+        }
+        await updateUserMutation.mutateAsync(updateData);
         setSuccess(true);
         setSelectedUser(null);
       } else {
@@ -205,7 +210,7 @@ const CreateUser = () => {
                       setSelectedUser(user);
                       setUserData({
                         user_id: user.user_id,
-                        password: '',
+                        password: '', // Keep password empty when editing
                         user_type: user.user_type,
                         user_org: user.user_org,
                         last_upd: user.last_upd,

@@ -26,9 +26,9 @@ const ManageOrganizations = () => {
       const newOrgData = {
         org_name: newOrg.trim(),
         created_at: currentTime,
-        created_by: session.user.user_id, // Change this to user_id
+        created_by: session.user.email,
         last_upd: currentTime,
-        last_upd_by: session.user.user_id // Change this to user_id
+        last_upd_by: session.user.email
       };
       try {
         await addOrgMutation.mutateAsync(newOrgData);
@@ -50,7 +50,7 @@ const ManageOrganizations = () => {
           org_name: oldOrg,
           new_org_name: newOrg.trim(),
           last_upd: currentTime,
-          last_upd_by: session.user.user_id // Change this to user_id
+          last_upd_by: session.user.email
         });
         setEditingOrg(null);
         toast.success('Organization updated successfully');

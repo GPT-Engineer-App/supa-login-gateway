@@ -22,7 +22,7 @@ const ManageOrganizations = () => {
 
   const handleAddOrg = async () => {
     if (newOrg.trim() !== '') {
-      const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+      const currentTime = new Date().toISOString();
       try {
         await addOrgMutation.mutateAsync({
           org_name: newOrg.trim(),
@@ -43,7 +43,7 @@ const ManageOrganizations = () => {
 
   const handleUpdateOrg = (oldOrg, newOrg) => {
     if (newOrg.trim() !== '' && oldOrg !== newOrg) {
-      const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+      const currentTime = new Date().toISOString();
       updateOrgMutation.mutate({
         org_name: oldOrg,
         new_org_name: newOrg.trim(),

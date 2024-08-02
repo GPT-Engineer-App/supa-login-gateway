@@ -28,6 +28,10 @@ const DsrForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!session || !session.user) {
+      toast.error("You must be logged in to create a DSR.");
+      return;
+    }
     const currentTime = new Date().toISOString();
     const newDsr = {
       po_number: trackingId,
@@ -38,8 +42,8 @@ const DsrForm = () => {
       }]),
       created_dt: currentTime,
       last_upd_dt: currentTime,
-      last_upd_by: session.user.email || 'system',
-      created_by: session.user.email || 'system',
+      last_upd_by: session.user.email,
+      created_by: session.user.email,
       user_org: userOrg
     };
 

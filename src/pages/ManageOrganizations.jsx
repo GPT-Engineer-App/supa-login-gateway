@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 const ManageOrganizations = () => {
   const [newOrg, setNewOrg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [editingOrg, setEditingOrg] = useState(null);
+  const [editingOrg, setEditingOrg] = useState({ id: null, name: '' });
   const [error, setError] = useState(null);
   const { session } = useSupabaseAuth();
   const { data: organizations, isLoading, isError } = useUserOrg();
@@ -40,17 +40,17 @@ const ManageOrganizations = () => {
     }
   };
 
-  const handleUpdateOrg = async (id, newOrgName) => {
-    if (newOrgName.trim() !== '') {
+  const handleUpdateOrg = async () => {
+    if (editingOrg.name.trim() !== '') {
       const currentTime = new Date().toISOString();
       try {
         await updateOrgMutation.mutateAsync({
-          id,
-          org_name: newOrgName.trim(),
+          id: editingOrg.id,
+          org_name: editingOrg.name.trim(),
           last_upd: currentTime,
           last_upd_by: session.user.email
         });
-        setEditingOrg(null);
+        setEditingOrg({ id: null, name: '' });
         toast.success('Organization updated successfully');
       } catch (error) {
         console.error('Error updating organization:', error);
@@ -58,6 +58,10 @@ const ManageOrganizations = () => {
         setError(`Failed to update organization: ${error.message}`);
       }
     }
+  };
+
+  const handleEditClick = (org) => {
+    setEditingOrg({ id: org.id, name: org.org_name });
   };
 
   const handleDeleteOrg = (id) => {
@@ -100,20 +104,26 @@ const ManageOrganizations = () => {
           <ul className="space-y-2">
             {filteredOrganizations.map((org) => (
               <li key={org.id} className="flex justify-between items-center">
-                {editingOrg === org.id ? (
-                  <Input
-                    value={editingOrg}
-                    onChange={(e) => setEditingOrg(e.target.value)}
-                    onBlur={() => handleUpdateOrg(org.id, editingOrg)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleUpdateOrg(org.id, editingOrg)}
-                  />
+                {editingOrg.id === org.id ? (
+                  <>
+                    <Input
+                      value={editingOrg.name}
+                      onChange={(e) => setEditingOrg({ ...editingOrg, name: e.target.value })}
+                    />
+                    <div>
+                      <Button variant="outline" onClick={handleUpdateOrg} className="mr-2">Save</Button>
+                      <Button variant="outline" onClick={() => setEditingOrg({ id: null, name: '' })} className="mr-2">Cancel</Button>
+                    </div>
+                  </>
                 ) : (
-                  <span>{org.org_name}</span>
+                  <>
+                    <span>{org.org_name}</span>
+                    <div>
+                      <Button variant="outline" onClick={() => handleEditClick(org)} className="mr-2">Edit</Button>
+                      <Button variant="destructive" onClick={() => handleDeleteOrg(org.id)}>Delete</Button>
+                    </div>
+                  </>
                 )}
-                <div>
-                  <Button variant="outline" onClick={() => setEditingOrg(org.id)} className="mr-2">Edit</Button>
-                  <Button variant="destructive" onClick={() => handleDeleteOrg(org.id)}>Delete</Button>
-                </div>
               </li>
             ))}
           </ul>

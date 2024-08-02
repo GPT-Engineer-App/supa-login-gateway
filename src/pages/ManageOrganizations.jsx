@@ -22,7 +22,7 @@ const ManageOrganizations = () => {
 
   const handleAddOrg = async () => {
     if (newOrg.trim() !== '') {
-      const currentTime = new Date().toISOString();
+      const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
       const newOrgData = {
         org_name: newOrg.trim(),
         created_at: currentTime,

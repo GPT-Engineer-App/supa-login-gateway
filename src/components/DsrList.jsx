@@ -37,12 +37,12 @@ const DsrList = () => {
   const [sortDirection, setSortDirection] = useState('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const { session } = useSupabaseAuth();
   const { data: userData } = useUserTable();
-  const userOrg = userData?.find(user => user.user_id === session.user.user_id)?.user_org || '';
+  const userOrg = userData?.find(user => user?.user_id === session?.user?.user_id)?.user_org || '';
   const { data, isLoading, isError, refetch } = useDsrTracker(currentPage, itemsPerPage, searchId, sortField, sortDirection, userOrg);
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();
-  const { session } = useSupabaseAuth();
 
   useEffect(() => {
     refetch();
@@ -71,6 +71,10 @@ const DsrList = () => {
   };
 
   const handleUpdate = async (dsr) => {
+    if (!session?.user) {
+      toast.error('You must be logged in to update DSRs.');
+      return;
+    }
     if (session.user.user_type === 'guest') {
       toast.error('Guest users are not allowed to update DSRs.');
       return;

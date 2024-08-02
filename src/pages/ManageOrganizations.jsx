@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Navigate } from 'react-router-dom';
 import { useUserOrg, useAddUserOrg, useUpdateUserOrg, useDeleteUserOrg } from '../integrations/supabase';
-import { format } from 'date-fns-tz';
+import { format } from 'date-fns-tz/format';
 import { toast } from 'sonner';
 
 const ManageOrganizations = () => {

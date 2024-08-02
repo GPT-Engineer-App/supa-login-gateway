@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDsrTracker, useUpdateDsrTracker, useDeleteDsrTracker } from '../integrations/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,22 @@ import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { logError } from '../utils/errorLogging.js';
 
+/**
+ * DsrList Component
+ * 
+ * This component displays a list of DSRs (Daily Status Reports) with pagination,
+ * sorting, and filtering capabilities. It uses server-side operations for improved
+ * performance with large datasets.
+ * 
+ * Features:
+ * - Server-side pagination
+ * - Server-side sorting
+ * - Server-side filtering by Tracking ID
+ * - CRUD operations on DSRs
+ * - Export to Excel functionality
+ * 
+ * @component
+ */
 const DsrList = () => {
   const [searchId, setSearchId] = useState('');
   const [updateComment, setUpdateComment] = useState('');
@@ -20,31 +36,16 @@ const DsrList = () => {
   const [sortDirection, setSortDirection] = useState('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const { data: dsrs, isLoading, isError } = useDsrTracker();
+  const { data: dsrs, isLoading, isError, refetch } = useDsrTracker(currentPage, itemsPerPage, searchId, sortField, sortDirection);
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();
   const { session } = useSupabaseAuth();
 
-  const filteredDsrs = searchId
-    ? dsrs?.filter(dsr => dsr.po_number.includes(searchId))
-    : dsrs;
+  useEffect(() => {
+    refetch();
+  }, [currentPage, itemsPerPage, searchId, sortField, sortDirection]);
 
-  const userVisibleDsrs = filteredDsrs?.filter(dsr => 
-    session.user.user_type === 'guest' ? dsr.user_org === session.user.user_org : true
-  );
-
-  const sortedDsrs = userVisibleDsrs?.sort((a, b) => {
-    if (a[sortField] < b[sortField]) return sortDirection === 'asc' ? -1 : 1;
-    if (a[sortField] > b[sortField]) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  const paginatedDsrs = sortedDsrs?.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalPages = Math.ceil((sortedDsrs?.length || 0) / itemsPerPage);
+  const totalPages = Math.ceil((dsrs?.total || 0) / itemsPerPage);
 
   const handleSort = (field) => {
     if (field === sortField) {

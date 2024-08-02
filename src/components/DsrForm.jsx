@@ -42,7 +42,7 @@ const DsrForm = () => {
       po_number: trackingId,
       comments: JSON.stringify([{
         date: currentTime,
-        user: userId,
+        user: 'User', // Anonymized user identifier
         comment: comment
       }]),
       created_dt: currentTime,

@@ -32,6 +32,10 @@ const DsrForm = () => {
       toast.error("You must be logged in to create a DSR.");
       return;
     }
+    if (!session.user.email && !session.user.user_id) {
+      toast.error("Invalid user data. Please log in again.");
+      return;
+    }
     const currentTime = new Date().toISOString();
     const newDsr = {
       po_number: trackingId,
@@ -42,8 +46,8 @@ const DsrForm = () => {
       }]),
       created_dt: currentTime,
       last_upd_dt: currentTime,
-      last_upd_by: session.user.email,
-      created_by: session.user.email,
+      last_upd_by: session.user.email || session.user.user_id,
+      created_by: session.user.email || session.user.user_id,
       user_org: userOrg
     };
 

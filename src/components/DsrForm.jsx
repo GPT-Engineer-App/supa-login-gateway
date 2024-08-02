@@ -47,9 +47,8 @@ const DsrForm = () => {
       created_dt: currentTime,
       last_upd_dt: currentTime,
       last_upd_by: session.user.email || session.user.user_id,
-      created_by: session.user.email,
+      created_by: session.user.email || session.user.user_id,
       user_org: userOrg,
-      last_upd_by: session.user.email
     };
 
     try {
@@ -62,7 +61,7 @@ const DsrForm = () => {
     } catch (error) {
       console.error('Error creating DSR:', error);
       toast.error("Oops! Failed to create DSR.", {
-        description: "Don't worry, these things happen. Please try again or contact support if the issue persists.",
+        description: `Error: ${error.message}. Please try again or contact support if the issue persists.`,
       });
     }
   };

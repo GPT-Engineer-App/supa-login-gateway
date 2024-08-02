@@ -29,15 +29,16 @@ const Index = () => {
             </DsrBox>
             {session.user.user_type !== 'guest' && (
               <DsrBox title="Quick Actions">
-              {session.user.user_type !== 'guest' && (
-                <Button asChild className="w-full" variant="outline">
-                  <Link to="/manage-organizations">Manage Organizations</Link>
-                </Button>
-              )}
-              {session.user.user_type === 'guest' && (
-                <p>No quick actions available for guest users.</p>
-              )}
-            </DsrBox>
+                {session.user.user_type !== 'guest' && (
+                  <Button asChild className="w-full" variant="outline">
+                    <Link to="/manage-organizations">Manage Organizations</Link>
+                  </Button>
+                )}
+                {session.user.user_type === 'guest' && (
+                  <p>No quick actions available for guest users.</p>
+                )}
+              </DsrBox>
+            )}
           </div>
         ) : null}
       </div>

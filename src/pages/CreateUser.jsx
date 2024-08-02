@@ -28,7 +28,7 @@ const CreateUser = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const { data: userOrganizations } = useUserOrg();
+  const { data: userOrganizations = [] } = useUserOrg();
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
@@ -167,7 +167,7 @@ const CreateUser = () => {
             </SelectTrigger>
             <SelectContent>
               {userOrganizations.map((org) => (
-                <SelectItem key={org} value={org}>{org}</SelectItem>
+                <SelectItem key={org.id} value={org.org_name}>{org.org_name}</SelectItem>
               ))}
             </SelectContent>
           </Select>

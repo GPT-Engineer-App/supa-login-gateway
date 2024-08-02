@@ -94,9 +94,9 @@ export const useDeleteUserTable = () => {
 export const useUserOrg = () => useQuery({
     queryKey: ['user_org'],
     queryFn: async () => {
-        const { data, error } = await supabase.from('user_org').select('*').order('created_at', { ascending: false });
+        const { data, error } = await supabase.from('user_org').select('id, org_name').order('created_at', { ascending: false });
         if (error) throw error;
-        return Array.isArray(data) ? data : data ? [data] : [];
+        return data || [];
     },
 });
 

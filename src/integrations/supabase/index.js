@@ -105,7 +105,6 @@ export const useAddUserOrg = () => {
     return useMutation({
         mutationFn: (newOrg) => {
             console.log('Mutation function received:', newOrg);
-            // Ensure all required fields are present and not undefined
             const sanitizedOrg = {
                 ...newOrg,
                 created_by: newOrg.created_by || 'system',
@@ -127,12 +126,12 @@ export const useAddUserOrg = () => {
 export const useUpdateUserOrg = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ org_name, new_org_name, last_upd, last_upd_by }) => 
+        mutationFn: ({ id, org_name, last_upd, last_upd_by }) => 
             fromSupabase(supabase.from('user_org').update({ 
-                org_name: new_org_name, 
+                org_name, 
                 last_upd, 
                 last_upd_by 
-            }).eq('org_name', org_name)),
+            }).eq('id', id)),
         onSuccess: () => {
             queryClient.invalidateQueries('user_org');
         },
@@ -146,7 +145,7 @@ export const useUpdateUserOrg = () => {
 export const useDeleteUserOrg = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (org_name) => fromSupabase(supabase.from('user_org').delete().eq('org_name', org_name)),
+        mutationFn: (id) => fromSupabase(supabase.from('user_org').delete().eq('id', id)),
         onSuccess: () => {
             queryClient.invalidateQueries('user_org');
         },

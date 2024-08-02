@@ -25,9 +25,7 @@ const ManageOrganizations = () => {
       const currentTime = new Date().toISOString();
       const newOrgData = {
         org_name: newOrg.trim(),
-        created_at: currentTime,
         created_by: session.user.email || 'system',
-        last_upd: currentTime,
         last_upd_by: session.user.email || 'system'
       };
       try {
@@ -42,13 +40,13 @@ const ManageOrganizations = () => {
     }
   };
 
-  const handleUpdateOrg = async (oldOrg, newOrg) => {
-    if (newOrg.trim() !== '' && oldOrg !== newOrg) {
+  const handleUpdateOrg = async (id, newOrgName) => {
+    if (newOrgName.trim() !== '') {
       const currentTime = new Date().toISOString();
       try {
         await updateOrgMutation.mutateAsync({
-          org_name: oldOrg,
-          new_org_name: newOrg.trim(),
+          id,
+          org_name: newOrgName.trim(),
           last_upd: currentTime,
           last_upd_by: session.user.email
         });
@@ -62,8 +60,8 @@ const ManageOrganizations = () => {
     }
   };
 
-  const handleDeleteOrg = (org) => {
-    deleteOrgMutation.mutate(org);
+  const handleDeleteOrg = (id) => {
+    deleteOrgMutation.mutate(id);
   };
 
   const filteredOrganizations = organizations?.filter(org =>
@@ -101,20 +99,20 @@ const ManageOrganizations = () => {
           />
           <ul className="space-y-2">
             {filteredOrganizations.map((org) => (
-              <li key={org.org_name} className="flex justify-between items-center">
-                {editingOrg === org.org_name ? (
+              <li key={org.id} className="flex justify-between items-center">
+                {editingOrg === org.id ? (
                   <Input
                     value={editingOrg}
                     onChange={(e) => setEditingOrg(e.target.value)}
-                    onBlur={() => handleUpdateOrg(org.org_name, editingOrg)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleUpdateOrg(org.org_name, editingOrg)}
+                    onBlur={() => handleUpdateOrg(org.id, editingOrg)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleUpdateOrg(org.id, editingOrg)}
                   />
                 ) : (
                   <span>{org.org_name}</span>
                 )}
                 <div>
-                  <Button variant="outline" onClick={() => setEditingOrg(org.org_name)} className="mr-2">Edit</Button>
-                  <Button variant="destructive" onClick={() => handleDeleteOrg(org.org_name)}>Delete</Button>
+                  <Button variant="outline" onClick={() => setEditingOrg(org.id)} className="mr-2">Edit</Button>
+                  <Button variant="destructive" onClick={() => handleDeleteOrg(org.id)}>Delete</Button>
                 </div>
               </li>
             ))}

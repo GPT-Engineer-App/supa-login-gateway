@@ -25,7 +25,7 @@ const Index = () => {
                   <DsrForm />
                 </DsrBox>
               )}
-              {session.user.user_type === 'admin' && (
+              {session.user.user_type === 'TSV-Admin' && (
                 <>
                   <DsrBox title="Admin Actions">
                     <div className="space-y-4">

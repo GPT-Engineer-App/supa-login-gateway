@@ -14,7 +14,7 @@ import { useUserOrg } from '../integrations/supabase';
 const CreateUser = () => {
   const { session } = useSupabaseAuth();
 
-  if (!session || session.user.user_type !== 'admin') {
+  if (!session || session.user.user_type !== 'TSV-Admin') {
     return <Navigate to="/" replace />;
   }
 
@@ -163,8 +163,8 @@ const CreateUser = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="TSV-Admin">TSV-Admin</SelectItem>
-              <SelectItem value="TSV-User">TSV-User</SelectItem>
-              <SelectItem value="Guest">Guest</SelectItem>
+              <SelectItem value="TSV">TSV</SelectItem>
+              <SelectItem value="guest">Guest</SelectItem>
             </SelectContent>
           </Select>
         </div>

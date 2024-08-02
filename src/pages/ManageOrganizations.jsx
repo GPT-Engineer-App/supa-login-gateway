@@ -79,7 +79,7 @@ const ManageOrganizations = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (session.user.user_type !== 'admin') {
+  if (session.user.user_type !== 'TSV-Admin') {
     return <Navigate to="/" replace />;
   }
 

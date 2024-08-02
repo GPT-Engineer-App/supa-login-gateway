@@ -162,8 +162,8 @@ const CreateUser = () => {
               <SelectValue placeholder="Select user type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="TSV-Admin">TSV-Admin</SelectItem>
+              <SelectItem value="TSV">TSV</SelectItem>
               <SelectItem value="guest">Guest</SelectItem>
             </SelectContent>
           </Select>

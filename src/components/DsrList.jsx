@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDsrTracker, useUpdateDsrTracker, useDeleteDsrTracker } from '../integrations/supabase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,22 +14,6 @@ import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { logError } from '../utils/errorLogging.js';
 
-/**
- * DsrList Component
- * 
- * This component displays a list of DSRs (Daily Status Reports) with pagination,
- * sorting, and filtering capabilities. It uses server-side operations for improved
- * performance with large datasets.
- * 
- * Features:
- * - Server-side pagination
- * - Server-side sorting
- * - Server-side filtering by Tracking ID
- * - CRUD operations on DSRs
- * - Export to Excel functionality
- * 
- * @component
- */
 const DsrList = () => {
   const [searchId, setSearchId] = useState('');
   const [updateComment, setUpdateComment] = useState('');
@@ -40,17 +24,35 @@ const DsrList = () => {
   const itemsPerPage = 10;
   const { session } = useSupabaseAuth();
   const { data: userData } = useUserTable();
-  const userOrg = session?.user?.user_type === 'admin' ? null : userData?.find(user => user?.user_id === session?.user?.user_id)?.user_org || '';
+
+  const userAccess = useMemo(() => {
+    if (!session || !session.user) return { type: 'guest', org: '' };
+    const user = userData?.find(u => u.user_id === session.user.user_id);
+    return {
+      type: user?.user_type || 'guest',
+      org: user?.user_org || ''
+    };
+  }, [session, userData]);
+
+  const userOrg = userAccess.type === 'TSV-Admin' ? null : userAccess.org;
   const { data, isLoading, isError, refetch } = useDsrTracker(currentPage, itemsPerPage, searchId, sortField, sortDirection, userOrg);
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();
 
   useEffect(() => {
     refetch();
-  }, [currentPage, itemsPerPage, searchId, sortField, sortDirection]);
+  }, [currentPage, itemsPerPage, searchId, sortField, sortDirection, userOrg]);
 
-  const dsrs = data?.data || [];
-  const totalPages = Math.ceil((data?.total || 0) / itemsPerPage);
+  const dsrs = useMemo(() => {
+    if (!data?.data) return [];
+    return data.data.filter(dsr => {
+      if (userAccess.type === 'TSV-Admin') return true;
+      if (userAccess.type === 'TSV') return dsr.user_org !== 'TSV-Admin';
+      return dsr.user_org === userAccess.org;
+    });
+  }, [data?.data, userAccess]);
+
+  const totalPages = Math.ceil((dsrs.length || 0) / itemsPerPage);
 
   const handleSort = (field) => {
     if (field === sortField) {

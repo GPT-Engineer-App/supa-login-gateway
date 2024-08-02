@@ -84,10 +84,11 @@ const ManageOrganizations = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-md">
-        <h1 className="text-3xl font-bold text-center">Manage Organizations</h1>
+    <div className="container mx-auto p-8">
+      <h1 className="text-3xl font-bold mb-6">Manage Organizations</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Add New Organization</h2>
           <div className="flex space-x-2">
             <Input
               value={newOrg}
@@ -96,12 +97,15 @@ const ManageOrganizations = () => {
             />
             <Button onClick={handleAddOrg}>Add</Button>
           </div>
+        </div>
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Organization List</h2>
           <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search organizations"
           />
-          <ul className="space-y-2">
+          <ul className="space-y-2 bg-white p-4 rounded-lg shadow">
             {filteredOrganizations.map((org) => (
               <li key={org.id} className="flex justify-between items-center">
                 {editingOrg.id === org.id ? (

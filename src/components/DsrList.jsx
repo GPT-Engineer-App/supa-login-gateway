@@ -7,11 +7,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { format } from 'date-fns';
+import { ArrowUpDown } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { toast } from 'sonner';
 
 const DsrList = () => {
   const [searchId, setSearchId] = useState('');
   const [updateComment, setUpdateComment] = useState('');
   const [selectedDsr, setSelectedDsr] = useState(null);
+  const [sortField, setSortField] = useState('last_upd_dt');
+  const [sortDirection, setSortDirection] = useState('desc');
   const { data: dsrs, isLoading, isError } = useDsrTracker();
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();
@@ -25,7 +30,30 @@ const DsrList = () => {
     session.user.user_type === 'guest' ? dsr.user_org === session.user.user_org : true
   );
 
-  const sortedDsrs = userVisibleDsrs?.sort((a, b) => new Date(b.last_upd_dt) - new Date(a.last_upd_dt)).slice(0, 10);
+  const sortedDsrs = userVisibleDsrs?.sort((a, b) => {
+    if (a[sortField] < b[sortField]) return sortDirection === 'asc' ? -1 : 1;
+    if (a[sortField] > b[sortField]) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  }).slice(0, 10);
+
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(sortedDsrs);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "DSR List");
+    XLSX.writeFile(workbook, "dsr_list.xlsx");
+    toast.success("DSR list exported successfully!", {
+      description: "The Excel file has been downloaded to your device.",
+    });
+  };
 
   const handleUpdate = async (dsr) => {
     if (session.user.user_type === 'guest') {
@@ -51,7 +79,9 @@ const DsrList = () => {
       });
       setUpdateComment('');
       setSelectedDsr(null);
-      alert('DSR updated successfully!');
+      toast.success("Great job! DSR updated successfully!", {
+        description: "Your changes have been saved and the DSR is now up-to-date.",
+      });
     } catch (error) {
       console.error('Error updating DSR:', error);
       alert('Failed to update DSR. Please try again.');
@@ -66,7 +96,9 @@ const DsrList = () => {
     if (window.confirm('Are you sure you want to delete this DSR?')) {
       try {
         await deleteDsrMutation.mutateAsync(id);
-        alert('DSR deleted successfully!');
+        toast.success("DSR deleted successfully!", {
+          description: "The DSR has been removed from the system. Good job keeping things organized!",
+        });
       } catch (error) {
         console.error('Error deleting DSR:', error);
         alert('Failed to delete DSR. Please try again.');
@@ -85,13 +117,28 @@ const DsrList = () => {
         onChange={(e) => setSearchId(e.target.value)}
         placeholder="Search by Tracking ID"
       />
+      <Button onClick={exportToExcel} className="mb-4">Export to Excel</Button>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Tracking ID</TableHead>
-            <TableHead>Last Updated</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Organization</TableHead>
+            <TableHead onClick={() => handleSort('po_number')} className="cursor-pointer">
+              Tracking ID <ArrowUpDown className="inline-block ml-1" size={16} />
+            </TableHead>
+            <TableHead onClick={() => handleSort('created_dt')} className="cursor-pointer">
+              Created <ArrowUpDown className="inline-block ml-1" size={16} />
+            </TableHead>
+            <TableHead onClick={() => handleSort('created_by')} className="cursor-pointer">
+              Created By <ArrowUpDown className="inline-block ml-1" size={16} />
+            </TableHead>
+            <TableHead onClick={() => handleSort('last_upd_dt')} className="cursor-pointer">
+              Last Updated <ArrowUpDown className="inline-block ml-1" size={16} />
+            </TableHead>
+            <TableHead onClick={() => handleSort('last_upd_by')} className="cursor-pointer">
+              Last Updated By <ArrowUpDown className="inline-block ml-1" size={16} />
+            </TableHead>
+            <TableHead onClick={() => handleSort('user_org')} className="cursor-pointer">
+              Organization <ArrowUpDown className="inline-block ml-1" size={16} />
+            </TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -99,8 +146,10 @@ const DsrList = () => {
           {sortedDsrs?.map(dsr => (
             <TableRow key={dsr.id}>
               <TableCell>{dsr.po_number}</TableCell>
+              <TableCell>{new Date(dsr.created_dt).toLocaleString()}</TableCell>
+              <TableCell>{dsr.created_by}</TableCell>
               <TableCell>{new Date(dsr.last_upd_dt).toLocaleString()}</TableCell>
-              <TableCell>{JSON.parse(dsr.comments || '[]').slice(-1)[0]?.comment || 'No status'}</TableCell>
+              <TableCell>{dsr.last_upd_by}</TableCell>
               <TableCell>{dsr.user_org}</TableCell>
               <TableCell>
                 <Dialog>

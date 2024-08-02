@@ -51,10 +51,14 @@ const DsrForm = () => {
       await addDsrMutation.mutateAsync(newDsr);
       setTrackingId('');
       setComment('');
-      alert('DSR created successfully!');
+      toast.success("Fantastic! New DSR created successfully!", {
+        description: "Your DSR has been added to the system. Keep up the great work!",
+      });
     } catch (error) {
       console.error('Error creating DSR:', error);
-      alert('Failed to create DSR. Please try again.');
+      toast.error("Oops! Failed to create DSR.", {
+        description: "Don't worry, these things happen. Please try again or contact support if the issue persists.",
+      });
     }
   };
 

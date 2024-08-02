@@ -30,6 +30,8 @@ const DsrList = () => {
     org: userData?.find(u => u.user_id === session?.user?.user_id)?.user_org || ''
   };
 
+  const isGuest = userAccess.type === 'Guest';
+
   const { data, isLoading, isError, refetch } = useDsrTracker(
     currentPage,
     itemsPerPage,
@@ -201,7 +203,7 @@ const DsrList = () => {
                             </tbody>
                           </table>
                         </div>
-                        {!isGuest && (
+                        {userAccess.type !== 'Guest' && (
                           <div className="mt-2">
                             <Textarea
                               value={updateComment}
@@ -209,7 +211,7 @@ const DsrList = () => {
                               placeholder="Add a new comment"
                             />
                             <Button onClick={() => handleUpdate(selectedDsr)} className="mt-2">Update</Button>
-                            {session.user.user_type === 'TSV-Admin' && (
+                            {userAccess.type === 'TSV-Admin' && (
                               <Button onClick={() => handleDelete(selectedDsr.id)} variant="destructive" className="mt-2 ml-2">Delete</Button>
                             )}
                           </div>

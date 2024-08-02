@@ -22,11 +22,12 @@ const ManageOrganizations = () => {
 
   const handleAddOrg = async () => {
     if (newOrg.trim() !== '') {
+      const currentTime = new Date().toISOString();
       const newOrgData = {
         org_name: newOrg.trim(),
-        created_at: new Date().toISOString(),
+        created_at: currentTime,
         created_by: session.user.user_id,
-        last_upd: new Date().toISOString(),
+        last_upd: currentTime,
         last_upd_by: session.user.user_id
       };
       try {
@@ -43,11 +44,12 @@ const ManageOrganizations = () => {
 
   const handleUpdateOrg = (oldOrg, newOrg) => {
     if (newOrg.trim() !== '' && oldOrg !== newOrg) {
+      const currentTime = new Date().toISOString();
       updateOrgMutation.mutate({
         org_name: oldOrg,
         new_org_name: newOrg.trim(),
-        last_upd: session.user.user_id,
-        last_upd_by: new Date().toISOString()
+        last_upd: currentTime,
+        last_upd_by: session.user.user_id
       });
       setEditingOrg(null);
     }

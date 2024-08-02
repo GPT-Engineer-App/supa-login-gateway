@@ -22,15 +22,17 @@ const ManageOrganizations = () => {
 
   const handleAddOrg = async () => {
     if (newOrg.trim() !== '') {
-      const currentTime = new Date().toISOString();
+      const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+      const newOrgData = {
+        org_name: newOrg.trim(),
+        created_at: currentTime,
+        created_by: session.user.user_id,
+        last_upd: currentTime,
+        last_upd_by: session.user.user_id
+      };
+      console.log('New organization data:', newOrgData);
       try {
-        await addOrgMutation.mutateAsync({
-          org_name: newOrg.trim(),
-          created_at: currentTime,
-          created_by: session.user.user_id,
-          last_upd: currentTime,
-          last_upd_by: session.user.user_id
-        });
+        await addOrgMutation.mutateAsync(newOrgData);
         setNewOrg('');
         toast.success('Organization added successfully');
       } catch (error) {

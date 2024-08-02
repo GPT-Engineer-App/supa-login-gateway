@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAddDsrTracker, useUserTable, useUserOrg } from '../integrations/supabase';
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,8 +38,8 @@ const DsrForm = () => {
       }]),
       created_dt: currentTime,
       last_upd_dt: currentTime,
-      last_upd_by: session.user.email,
-      created_by: session.user.email,
+      last_upd_by: session.user.email || 'system',
+      created_by: session.user.email || 'system',
       user_org: userOrg
     };
 

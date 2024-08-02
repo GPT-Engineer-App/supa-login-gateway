@@ -26,15 +26,16 @@ const DsrList = () => {
   const { data: userData } = useUserTable();
 
   const userAccess = useMemo(() => {
-    if (!session || !session.user) return { type: 'guest', org: '' };
+    if (!session || !session.user) return { type: 'Guest', org: '' };
     const user = userData?.find(u => u.user_id === session.user.user_id);
     return {
-      type: user?.user_type || 'guest',
+      type: user?.user_type || 'Guest',
       org: user?.user_org || ''
     };
   }, [session, userData]);
 
   const userOrg = userAccess.type === 'TSV-Admin' ? null : userAccess.org;
+  const isGuest = userAccess.type === 'Guest';
   const { data, isLoading, isError, refetch } = useDsrTracker(currentPage, itemsPerPage, searchId, sortField, sortDirection, userOrg);
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();
@@ -74,7 +75,7 @@ const DsrList = () => {
   };
 
   const handleUpdate = async (dsr) => {
-    if (!session?.user || session.user.user_type === 'guest') {
+    if (!session?.user || session.user.user_type === 'Guest') {
       toast.error('You do not have permission to update DSRs.');
       return;
     }
@@ -108,7 +109,7 @@ const DsrList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (session.user.user_type === 'guest') {
+    if (session.user.user_type === 'Guest') {
       toast.error('Guest users are not allowed to delete DSRs.');
       return;
     }
@@ -206,7 +207,7 @@ const DsrList = () => {
                             </tbody>
                           </table>
                         </div>
-                        {session.user.user_type !== 'guest' && (
+                        {!isGuest && (
                           <div className="mt-2">
                             <Textarea
                               value={updateComment}

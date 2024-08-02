@@ -20,7 +20,7 @@ const Index = () => {
         {session ? (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {session.user.user_type !== 'guest' && (
+              {session.user.user_type !== 'Guest' && (
                 <DsrBox title="Create New DSR">
                   <DsrForm />
                 </DsrBox>

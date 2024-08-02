@@ -15,7 +15,7 @@ const DsrForm = () => {
   const [userOrg, setUserOrg] = useState('');
   const { session } = useSupabaseAuth();
 
-  if (!session || session.user.user_type === 'guest') {
+  if (!session || session.user.user_type === 'Guest') {
     return null; // Don't render the form for guests or unauthenticated users
   }
   const addDsrMutation = useAddDsrTracker();
@@ -24,7 +24,7 @@ const DsrForm = () => {
   const userOrgOptions = Array.isArray(userOrgs) ? userOrgs : userOrgs ? [userOrgs] : [];
 
   useEffect(() => {
-    if (session && session.user.user_type === 'guest') {
+    if (session && session.user.user_type === 'Guest') {
       const guestOrg = users?.find(user => user.user_id === session.user.user_id)?.user_org;
       setUserOrg(guestOrg || '');
     }

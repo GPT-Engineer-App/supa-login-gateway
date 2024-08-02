@@ -164,8 +164,7 @@ const CreateUser = () => {
             <SelectContent>
               <SelectItem value="TSV-Admin">TSV-Admin</SelectItem>
               <SelectItem value="TSV-User">TSV-User</SelectItem>
-              <SelectItem value="TSV">TSV</SelectItem>
-              <SelectItem value="guest">Guest</SelectItem>
+              <SelectItem value="Guest">Guest</SelectItem>
             </SelectContent>
           </Select>
         </div>

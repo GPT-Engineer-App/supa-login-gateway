@@ -120,9 +120,9 @@ const CreateUser = () => {
   );
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <h1 className="text-3xl font-bold text-center">Manage Users</h1>
-      <p className="text-center text-gray-600">Admin access only</p>
+    <div className="container mx-auto p-4 space-y-6 dark:bg-gray-900">
+      <h1 className="text-3xl font-bold text-center dark:text-white">Manage Users</h1>
+      <p className="text-center text-gray-600 dark:text-gray-400">Admin access only</p>
       {error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
@@ -133,7 +133,7 @@ const CreateUser = () => {
           <AlertDescription>Operation completed successfully!</AlertDescription>
         </Alert>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-xl shadow-md">
+      <form onSubmit={handleSubmit} className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
         <div className="space-y-2">
           <Label htmlFor="user_id">User ID</Label>
           <Input
@@ -206,8 +206,8 @@ const CreateUser = () => {
           )}
         </div>
       </form>
-      <div className="space-y-4 bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-2xl font-bold">User List</h2>
+      <div className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+        <h2 className="text-2xl font-bold dark:text-white">User List</h2>
         <Input
           type="text"
           placeholder="Search users..."

@@ -7,9 +7,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { format } from 'date-fns';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
+import { logError } from '../utils/errorLogging';
 
 const DsrList = () => {
   const [searchId, setSearchId] = useState('');
@@ -17,6 +18,8 @@ const DsrList = () => {
   const [selectedDsr, setSelectedDsr] = useState(null);
   const [sortField, setSortField] = useState('last_upd_dt');
   const [sortDirection, setSortDirection] = useState('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const { data: dsrs, isLoading, isError } = useDsrTracker();
   const updateDsrMutation = useUpdateDsrTracker();
   const deleteDsrMutation = useDeleteDsrTracker();
@@ -34,7 +37,14 @@ const DsrList = () => {
     if (a[sortField] < b[sortField]) return sortDirection === 'asc' ? -1 : 1;
     if (a[sortField] > b[sortField]) return sortDirection === 'asc' ? 1 : -1;
     return 0;
-  }).slice(0, 10);
+  });
+
+  const paginatedDsrs = sortedDsrs?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil((sortedDsrs?.length || 0) / itemsPerPage);
 
   const handleSort = (field) => {
     if (field === sortField) {
@@ -57,7 +67,7 @@ const DsrList = () => {
 
   const handleUpdate = async (dsr) => {
     if (session.user.user_type === 'guest') {
-      alert('Guest users are not allowed to update DSRs.');
+      toast.error('Guest users are not allowed to update DSRs.');
       return;
     }
     if (!updateComment.trim()) return;
@@ -82,15 +92,16 @@ const DsrList = () => {
       toast.success("Great job! DSR updated successfully!", {
         description: "Your changes have been saved and the DSR is now up-to-date.",
       });
+      // TODO: Implement WhatsApp and email notifications here
     } catch (error) {
-      console.error('Error updating DSR:', error);
-      alert('Failed to update DSR. Please try again.');
+      logError('Error updating DSR:', error);
+      toast.error('Failed to update DSR. Please try again.');
     }
   };
 
   const handleDelete = async (id) => {
     if (session.user.user_type === 'guest') {
-      alert('Guest users are not allowed to delete DSRs.');
+      toast.error('Guest users are not allowed to delete DSRs.');
       return;
     }
     if (window.confirm('Are you sure you want to delete this DSR?')) {
@@ -100,14 +111,14 @@ const DsrList = () => {
           description: "The DSR has been removed from the system. Good job keeping things organized!",
         });
       } catch (error) {
-        console.error('Error deleting DSR:', error);
-        alert('Failed to delete DSR. Please try again.');
+        logError('Error deleting DSR:', error);
+        toast.error('Failed to delete DSR. Please try again.');
       }
     }
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading DSRs</div>;
+  if (isError) return <div>Error loading DSRs. Please try refreshing the page.</div>;
 
   return (
     <div className="space-y-4">
@@ -143,7 +154,7 @@ const DsrList = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedDsrs?.map(dsr => (
+          {paginatedDsrs?.map((dsr) => (
             <TableRow key={dsr.id}>
               <TableCell>{dsr.po_number}</TableCell>
               <TableCell>{new Date(dsr.created_dt).toLocaleString()}</TableCell>
@@ -194,6 +205,23 @@ const DsrList = () => {
           ))}
         </TableBody>
       </Table>
+      <div className="flex justify-between items-center mt-4">
+        <Button
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Previous
+        </Button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <Button
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          Next
+          <ChevronRight className="h-4 w-4 ml-2" />
+        </Button>
+      </div>
     </div>
   );
 };

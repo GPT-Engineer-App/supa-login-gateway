@@ -3,13 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { getUserOrganizations, addUserOrganization, deleteUserOrganization } from '../utils/userOrganizations';
+import { getUserOrganizations, addUserOrganization, updateUserOrganization, deleteUserOrganization } from '../utils/userOrganizations';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { Navigate } from 'react-router-dom';
 
 const ManageOrganizations = () => {
   const [organizations, setOrganizations] = useState([]);
   const [newOrg, setNewOrg] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editingOrg, setEditingOrg] = useState(null);
   const [error, setError] = useState(null);
   const { session } = useSupabaseAuth();
 
@@ -27,10 +29,22 @@ const ManageOrganizations = () => {
     }
   };
 
+  const handleUpdateOrg = (oldOrg, newOrg) => {
+    if (newOrg.trim() !== '' && oldOrg !== newOrg) {
+      updateUserOrganization(oldOrg, newOrg.trim());
+      setOrganizations(getUserOrganizations());
+      setEditingOrg(null);
+    }
+  };
+
   const handleDeleteOrg = (org) => {
     deleteUserOrganization(org);
     setOrganizations(getUserOrganizations());
   };
+
+  const filteredOrganizations = organizations.filter(org =>
+    org.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!session) {
     return <Navigate to="/login" replace />;
@@ -53,11 +67,28 @@ const ManageOrganizations = () => {
             />
             <Button onClick={handleAddOrg}>Add</Button>
           </div>
+          <Input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search organizations"
+          />
           <ul className="space-y-2">
-            {organizations.map((org) => (
+            {filteredOrganizations.map((org) => (
               <li key={org} className="flex justify-between items-center">
-                <span>{org}</span>
-                <Button variant="destructive" onClick={() => handleDeleteOrg(org)}>Delete</Button>
+                {editingOrg === org ? (
+                  <Input
+                    value={editingOrg}
+                    onChange={(e) => setEditingOrg(e.target.value)}
+                    onBlur={() => handleUpdateOrg(org, editingOrg)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleUpdateOrg(org, editingOrg)}
+                  />
+                ) : (
+                  <span>{org}</span>
+                )}
+                <div>
+                  <Button variant="outline" onClick={() => setEditingOrg(org)} className="mr-2">Edit</Button>
+                  <Button variant="destructive" onClick={() => handleDeleteOrg(org)}>Delete</Button>
+                </div>
               </li>
             ))}
           </ul>

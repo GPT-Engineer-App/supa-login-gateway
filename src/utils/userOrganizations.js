@@ -11,6 +11,14 @@ export const addUserOrganization = (newOrg) => {
   }
 };
 
+export const updateUserOrganization = (oldOrg, newOrg) => {
+  const index = userOrganizations.indexOf(oldOrg);
+  if (index > -1) {
+    userOrganizations[index] = newOrg;
+    // In a real application, you would save this to the server here
+  }
+};
+
 export const deleteUserOrganization = (org) => {
   const index = userOrganizations.indexOf(org);
   if (index > -1) {

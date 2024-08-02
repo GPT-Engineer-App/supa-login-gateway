@@ -26,11 +26,18 @@ const Index = () => {
                 </DsrBox>
               )}
               {session.user.user_type === 'admin' && (
-                <DsrBox title="Manage Organizations">
-                  <Button asChild className="w-full" variant="outline">
-                    <Link to="/manage-organizations">Manage Organizations</Link>
-                  </Button>
-                </DsrBox>
+                <>
+                  <DsrBox title="Admin Actions">
+                    <div className="space-y-4">
+                      <Button asChild className="w-full" variant="outline">
+                        <Link to="/manage-organizations">Manage Organizations</Link>
+                      </Button>
+                      <Button asChild className="w-full" variant="outline">
+                        <Link to="/create-user">Create User</Link>
+                      </Button>
+                    </div>
+                  </DsrBox>
+                </>
               )}
             </div>
             <DsrBox title="DSR List" className="w-full">

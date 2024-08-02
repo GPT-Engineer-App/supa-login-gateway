@@ -65,13 +65,24 @@ const CreateUser = () => {
     }
 
     try {
-      const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ssXXX");
+      const currentTime = new Date().toISOString();
       if (selectedUser) {
-        await updateUserMutation.mutateAsync({ id: selectedUser.id, ...userData, last_upd: currentTime });
+        await updateUserMutation.mutateAsync({ 
+          id: selectedUser.id, 
+          ...userData, 
+          last_upd: currentTime,
+          last_upd_by: session.user.email
+        });
         setSuccess(true);
         setSelectedUser(null);
       } else {
-        await addUserMutation.mutateAsync({ ...userData, last_upd: currentTime });
+        await addUserMutation.mutateAsync({ 
+          ...userData, 
+          created_at: currentTime,
+          created_by: session.user.email,
+          last_upd: currentTime,
+          last_upd_by: session.user.email
+        });
         setSuccess(true);
       }
       setUserData({ user_id: '', password: '', user_type: '', user_org: '', last_upd: '' });

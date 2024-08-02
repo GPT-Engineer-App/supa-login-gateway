@@ -27,18 +27,18 @@ const DsrForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const currentTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ssXXX");
+    const currentTime = new Date().toISOString();
     const newDsr = {
       po_number: trackingId,
       comments: JSON.stringify([{
         date: currentTime,
-        user: session.user.user_id,
+        user: session.user.email,
         comment: comment
       }]),
       created_dt: currentTime,
       last_upd_dt: currentTime,
-      last_upd_by: session.user.user_id,
-      created_by: session.user.user_id,
+      last_upd_by: session.user.email,
+      created_by: session.user.email,
       user_org: userOrg
     };
 
